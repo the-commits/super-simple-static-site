@@ -1,23 +1,28 @@
-import os
-
 from staticjinja import Site
 
-import ssss.common.fs as fs
-import ssss.common.md as md
+from ssss.common.fs.directory import get_full_path, make_empty
+from ssss.common.md import variables, render
 
 
-def main():
-    source = "site"
-    output = "dist"
+def build(config):
+    bake(config)
 
-    if os.path.exists(output):
-        fs.directory.make_empty(output)
 
-    site = Site.make_site(
+def watch(config):
+    bake(config, reload_on_change=True)
+
+
+def bake(config=None, reload_on_change=False):
+    source = get_full_path(config.data["source"])
+    output = get_full_path(config.data["output"])
+    contexts = config.data["contexts"]
+    rules = config.data["rules"]
+
+    make_empty(output)
+
+    Site.make_site(
         searchpath=source,
         outpath=output,
-        contexts=[(r".*\.md", md.info.variables)],
-        rules=[(r".*\.md", md.render.run)]
-    )
-
-    site.render()
+        contexts=[(contexts, variables)],
+        rules=[(rules, render.run)]
+    ).render(use_reloader=reload_on_change)
