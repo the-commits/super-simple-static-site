@@ -8,7 +8,7 @@ class Arguments:
         self.parse = argparse.ArgumentParser(
             prog=application_name(),
             description=application_description(),
-            epilog=application_name() + " - " + application_version(),
+            epilog=application_version(),
         )
         self.handle_args()
 

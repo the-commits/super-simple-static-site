@@ -1,13 +1,16 @@
+import importlib.metadata
+
+
 def application_name() -> str:
     return "ssss"
 
 
 def application_description() -> str:
-    return "ssss or super simple static site, a static site generator templated with jinja and markdown."
+    return importlib.metadata.metadata(application_name())["description"]
 
 
 def application_version() -> str:
-    return "0.0.0a0.post0.dev2"
+    return application_name() + " " + importlib.metadata.version(application_name())
 
 
 def application_template_path() -> str:
