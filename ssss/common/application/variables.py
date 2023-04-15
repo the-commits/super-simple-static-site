@@ -3,7 +3,7 @@ def application_name() -> str:
 
 
 def application_description() -> str:
-    return "ssss or super simple static site, a static site generator heavily dependent on staticjinja and markdown"
+    return "ssss or super simple static site, a static site generator templated with jinja and markdown."
 
 
 def application_version() -> str:
@@ -12,8 +12,9 @@ def application_version() -> str:
 
 def application_default_config_data() -> dict:
     return {
-        "source": "src",
-        "output": "site",
+        "source": "site/source",
+        "output": "site/build",
         "contexts": r".*\.md",
         "rules": r".*\.md",
+        "theme": "default",
     }
