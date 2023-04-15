@@ -1,5 +1,5 @@
 from ssss.configuration import application
-from ssss.generate import site, config_file
+from ssss.generate import site
 
 
 def main():
