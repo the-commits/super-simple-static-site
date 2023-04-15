@@ -5,6 +5,8 @@ import yaml
 
 from ssss.common.application import application_default_config_data
 from ssss.common.fs import find_config
+from ssss.common.fs.directory import get_full_path
+from ssss.common.md import variables, render
 from ssss.configuration.arguments import Arguments
 from ssss.configuration.default import config_file_path
 
@@ -12,6 +14,7 @@ from ssss.configuration.default import config_file_path
 class Application(Arguments):
 
     def __init__(self):
+        self.config = {}
         self.__init_config = None
 
         super().__init__()
@@ -25,6 +28,9 @@ class Application(Arguments):
             self.__config = find_config()
 
         self.load_config()
+
+    def __call__(self):
+        return self.config
 
     def handle_args(self):
         self.parse.add_argument(
@@ -58,6 +64,15 @@ class Application(Arguments):
         if yaml_data is not None:
             self.data = self.data | yaml_data
 
+        self.config["searchpath"] = get_full_path(self.data["source"])
+        self.config["outpath"] = get_full_path(self.data["output"])
+        self.config["contexts"] = [(self.data["data"], variables)]
+        self.config["rules"] = [(self.data["data"], render.run)]
+        self.config["encoding"] = str(self.data["encoding"])
+        self.config["followlinks"] = str(self.data["followlinks"])
+        self.config["filters"] = dict(self.data["filters"])
+        self.config["env_globals"] = dict(self.data["globals"])
+
     def init_config(self):
 
         if self.__config is None:
@@ -70,3 +85,6 @@ class Application(Arguments):
         if not config_path.exists():
             with open(config_path, "w") as file:
                 yaml.dump(application_default_config_data(), file)
+
+    def __getitem__(self, item):
+        return self.config[item]
