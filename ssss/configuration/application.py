@@ -5,7 +5,8 @@ import yaml
 
 from ssss.common.application import application_default_config_data
 from ssss.common.application.variables import application_default_template_path, application_default_template_file, \
-    application_default_base_html
+    application_default_base_html, application_default_source, application_default_output, application_default_data, \
+    application_default_encoding, application_default_followlinks, application_default_filters, application_default_site
 from ssss.common.fs import find_config
 from ssss.common.fs.directory import get_full_path, create_directory_if_not_exists
 from ssss.common.fs.file import touch_if_not_exists
@@ -65,24 +66,25 @@ class Application(Arguments):
             yaml_data = yaml.safe_load(file)
 
         if yaml_data is not None:
-            data_globals = self.data["globals"] | yaml_data["globals"]
-            data_filters = self.data["filters"] | yaml_data["filters"]
+            site_data = self.data.get("site", {}) | yaml_data.get("site", {})
+            site_filters = self.data.get("filters", {}) | yaml_data.get("filters", {})
             self.data = self.data | yaml_data
-            self.data["globals"] = data_globals
-            self.data["filters"] = data_filters
+            self.data["site"] = site_data
+            self.data["filters"] = site_filters
 
         self.set_config()
         self.create_structure()
 
     def set_config(self):
-        self.config["searchpath"] = get_full_path(self.data["source"])
-        self.config["outpath"] = get_full_path(self.data["output"])
-        self.config["contexts"] = [(self.data["data"], variables)]
-        self.config["rules"] = [(self.data["data"], render.run)]
-        self.config["encoding"] = str(self.data["encoding"])
-        self.config["followlinks"] = str(self.data["followlinks"])
-        self.config["filters"] = dict(self.data["filters"])
-        self.config["env_globals"] = dict(self.data["globals"])
+        self.data = {k: v for k, v in self.data.items() if v}
+        self.config["searchpath"] = get_full_path(self.data.get("source", application_default_source()))
+        self.config["outpath"] = get_full_path(self.data.get("output", application_default_output()))
+        self.config["contexts"] = [(self.data.get("data", application_default_data()), variables)]
+        self.config["rules"] = [(self.data.get("data", application_default_data()), render.run)]
+        self.config["encoding"] = str(self.data.get("encoding", application_default_encoding()))
+        self.config["followlinks"] = str(self.data.get("followlinks", application_default_followlinks()))
+        self.config["filters"] = dict(self.data.get("filters", application_default_filters()))
+        self.config["env_globals"] = dict(self.data.get("site", application_default_site()))
 
     def init_config(self):
 

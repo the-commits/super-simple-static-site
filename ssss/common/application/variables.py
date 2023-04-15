@@ -53,6 +53,16 @@ def application_default_filters() -> dict:
     return {}
 
 
+def application_default_site() -> dict:
+    return {
+        "title": "Site Name",
+        "description": "Site Description",
+        "author": "Site Author",
+        "url": "https://example.com",
+        "email": "asssa@example.com",
+    }
+
+
 def application_default_template_file() -> str:
     return application_default_template_path() \
         + application_default_template_name() \
@@ -65,17 +75,5 @@ def application_default_base_html() -> str:
 
 def application_default_config_data() -> dict:
     return {
-        "source": application_default_source(),
-        "output": application_default_output(),
-        "data": application_default_data(),
-        "encoding": application_default_encoding(),
-        "followlinks": application_default_followlinks(),
-        "filters": application_default_filters(),
-        "globals": {
-            "site_name": "Site Name",
-            "site_description": "Site Description",
-            "site_author": "Site Author",
-            "site_url": "https://example.com",
-            "site_email": "asssa@example.com",
-        },
+        "site": application_default_site(),
     }
