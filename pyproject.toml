@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ssss"
-version = "0.0.0a2"
+version = "0.0.0a3"
 description = "ssss or super simple static site, a static site generator, use jinja and markdown as your template and content, and generate static html files."
 authors = ["Magnus Åberg <himself@magnusaberg.me>"]
 readme = "README.md"
