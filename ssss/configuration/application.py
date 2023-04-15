@@ -44,7 +44,7 @@ class Application(Arguments):
         self.parse.add_argument(
             "--init",
             action="store_true",
-            help="Initialize configuration file",
+            help="Initialize configuration file and site structure",
             default=False
         )
         args = self.parse.parse_args()
