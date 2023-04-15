@@ -4,8 +4,11 @@ from pathlib import Path
 import yaml
 
 from ssss.common.application import application_default_config_data
+from ssss.common.application.variables import application_default_template_path, application_default_template_file, \
+    application_default_base_html
 from ssss.common.fs import find_config
-from ssss.common.fs.directory import get_full_path
+from ssss.common.fs.directory import get_full_path, create_directory_if_not_exists
+from ssss.common.fs.file import touch_if_not_exists
 from ssss.common.md import variables, render
 from ssss.configuration.arguments import Arguments
 from ssss.configuration.default import config_file_path
@@ -62,8 +65,16 @@ class Application(Arguments):
             yaml_data = yaml.safe_load(file)
 
         if yaml_data is not None:
+            data_globals = self.data["globals"] | yaml_data["globals"]
+            data_filters = self.data["filters"] | yaml_data["filters"]
             self.data = self.data | yaml_data
+            self.data["globals"] = data_globals
+            self.data["filters"] = data_filters
 
+        self.set_config()
+        self.create_structure()
+
+    def set_config(self):
         self.config["searchpath"] = get_full_path(self.data["source"])
         self.config["outpath"] = get_full_path(self.data["output"])
         self.config["contexts"] = [(self.data["data"], variables)]
@@ -88,3 +99,34 @@ class Application(Arguments):
 
     def __getitem__(self, item):
         return self.config[item]
+
+    def create_structure(self):
+        create_directory_if_not_exists(self.config["outpath"])
+        create_directory_if_not_exists(self.config["searchpath"])
+
+        create_directory_if_not_exists(
+            os.path.join(
+                self.config["searchpath"],
+                application_default_template_path()
+            )
+        )
+
+        touch_if_not_exists(
+            os.path.join(self.config["searchpath"],
+                         application_default_base_html()
+                         )
+        )
+        touch_if_not_exists(
+            os.path.join(
+                self.config["searchpath"],
+                application_default_template_file()
+            )
+        )
+        touch_if_not_exists(
+            os.path.join(
+                os.path.join(
+                    self.config["searchpath"],
+                    "index.md"
+                )
+            )
+        )

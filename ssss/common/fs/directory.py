@@ -31,3 +31,8 @@ def get_full_path(path):
     if path is None or path == "" or path == ".":
         path = get_current_directory()
     return os.path.abspath(path)
+
+
+def create_directory_if_not_exists(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from ssss.common.application import application_name
 from ssss.common.fs.directory import get_user_config_directory, get_current_directory
@@ -35,3 +36,8 @@ def search_config_in_dirs() -> str | None:
         if found is not None:
             return found
     return None
+
+
+def touch_if_not_exists(path):
+    if not os.path.exists(path):
+        Path(path).touch()
