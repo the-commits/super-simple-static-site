@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "ssss"
 version = "0.0.0a3"
-description = "ssss or super simple static site, a static site generator, use jinja and markdown as your template and content, and generate static html files."
+description = "ssss, short for Super Simple Static Site, is a static site generator that leverages Jinja and Markdown for creating templates and content. It generates static HTML files for an efficient and lightweight website."
 authors = ["Magnus Åberg <himself@magnusaberg.me>"]
 readme = "README.md"
 
