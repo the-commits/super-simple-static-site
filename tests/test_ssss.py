@@ -3,11 +3,41 @@ import subprocess
 from os import unlink
 
 from ssss.common.fs import make_empty
+from ssss.common.fs.file import touch_if_not_exists
 
 
 def run_ssss(*args):
     result = subprocess.run(["ssss"] + list(args), capture_output=True, text=True)
     return result.stdout, result.returncode
+
+
+def test_ssss_no_args():
+    output, returncode = run_ssss()
+    assert returncode == 1
+    assert "No configuration file found" in output
+
+
+def test_ssss_no_args_after_init():
+    output, returncode = run_ssss("--init", "-c", "test.yml")
+    assert returncode == 0
+    assert "Looking at: _templates/__index.j2, using default template: _templates/default.j2" in output
+
+    output, returncode = run_ssss("-c", "test.yml")
+    assert returncode == 0
+    assert "Looking at: _templates/__index.j2, using default template: _templates/default.j2" in output
+
+    unlink('test.yml')
+    make_empty('site', True)
+
+
+def test_ssss_no_args_after_init_with_empty_config():
+    touch_if_not_exists('test.yml')
+    output, returncode = run_ssss("-c", "test.yml")
+
+    assert returncode == 1
+    assert "Configuration file is empty." in output
+
+    unlink('test.yml')
 
 
 def test_ssss_short_help():

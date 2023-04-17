@@ -8,7 +8,7 @@ from ssss.common.application.variables import application_default_template_path,
     application_default_base_html, application_default_source, application_default_output, application_default_data, \
     application_default_encoding, application_default_followlinks, application_default_filters, application_default_site
 from ssss.common.fs import find_config
-from ssss.common.fs.directory import get_full_path, create_directory_if_not_exists
+from ssss.common.fs.directory import get_full_path, create_directory_if_not_exists, have_write_permission
 from ssss.common.fs.file import touch_if_not_exists
 from ssss.common.md import variables, render
 from ssss.configuration.arguments import Arguments
@@ -72,8 +72,11 @@ class Application(Arguments):
             self.data["site"] = site_data
             self.data["filters"] = site_filters
 
-        self.set_config()
-        self.create_structure()
+            self.set_config()
+            self.create_structure()
+
+        else:
+            raise NotImplementedError
 
     def set_config(self):
         self.data = {k: v for k, v in self.data.items() if v}
@@ -95,9 +98,12 @@ class Application(Arguments):
 
         self.__config = config_path.absolute()
 
-        if not config_path.exists():
-            with open(config_path, "w") as file:
-                yaml.dump(application_default_config_data(), file)
+        if have_write_permission(config_path.parent):
+            if not config_path.exists():
+                with open(config_path, "w") as file:
+                    yaml.dump(application_default_config_data(), file)
+        else:
+            raise PermissionError
 
     def __getitem__(self, item):
         return self.config[item]
