@@ -1,3 +1,4 @@
+![example workflow](https://github.com/the-commits/super-simple-static-site/actions/workflows/python-package.yml/badge.svg)
 # Super Simple Static Site (ssss)
 
 ssss, short for Super Simple Static Site, is a static site generator that leverages Jinja and Markdown for creating
