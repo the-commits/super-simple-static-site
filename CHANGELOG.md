@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - `--init` now writes starter content into `default.j2`, `base.html`, and `index.md` instead of creating empty files
+- Release workflow now temporarily disables the branch ruleset to push the version bump commit directly to main
 
 ## v1.1.0 (2026-03-05)
 
