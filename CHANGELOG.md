@@ -5,31 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## v1.2.0 (2026-03-05)
 
-### Added
+### Feat
 
-- `--scaffold` flag: runs `--init` implicitly, then writes starter `base.html`, `default.j2`, `index.md`, `sitemap.xml.j2`, `rss.xml.j2`, and `llms.txt.j2`
-- `--no-seo` flag: omits Open Graph, Twitter Card, and canonical meta from the scaffolded `base.html`
-- `--no-sitemap` flag: skips writing `sitemap.xml.j2` during scaffold
-- `--no-feed` flag: skips writing `rss.xml.j2` during scaffold
-- `--no-llm` flag: skips writing `llms.txt.j2` during scaffold
-- Scaffold files (`base.html`, `default.j2`, `index.md`, `sitemap.xml.j2`, `rss.xml.j2`, `llms.txt.j2`) extracted from Python strings into `ssss/scaffold/` as real files
-- `scaffold_directory()` and `read_scaffold_file()` helpers in `ssss.common.application.variables`
-- `strip_seo_blocks()` helper strips SEO comment blocks (Canonical, Open Graph, Twitter Card, LLM / AI crawler) from `base.html` when `--no-seo` is used
-- `base.html` scaffold includes full SEO meta (Open Graph, Twitter Card, canonical), feed and sitemap autodiscovery, and LLM/AI crawler hints
+- **scaffold**: add --scaffold, --no-seo, --no-sitemap, --no-feed, --no-llm flags
+- **scaffold**: add Pico CSS CDN to base.html template
+- **cli**: add --version / -v flag
+- **ci**: upload coverage to Codecov and add badge to README
 
-### Changed
+### Fix
 
-- `--init` no longer writes template and content files — it only creates the config and directory structure
-- `confirm_overwrite()` now catches `EOFError` and returns `False` (safe default) for non-interactive use
-- Updated `README.md` with full CLI reference, `--scaffold` quick-start, and Pico CSS attribution
-- Updated package description in `pyproject.toml`
-
-### Fixed
-
-- `confirm_overwrite()` no longer crashes with an unhandled `EOFError` when stdin is closed (e.g. in CI or subprocess tests)
-- Release workflow now temporarily disables the branch ruleset to push the version bump commit directly to main
+- **ci**: disable branch ruleset to allow release workflow to push bump commit
+- **init**: write starter content into scaffold files on --init
+- **ci**: exit gracefully when no commits found for cz bump
 
 ## v1.1.0 (2026-03-05)
 
