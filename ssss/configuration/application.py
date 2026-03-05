@@ -48,9 +48,6 @@ class Application(Arguments):
 
         self.load_config()
 
-    def __call__(self):
-        return self.config
-
     def handle_args(self):
         self.parse.add_argument("-c", "--config", help="Path to configuration file")
         self.parse.add_argument(

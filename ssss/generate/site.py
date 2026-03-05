@@ -7,10 +7,6 @@ def build(config):
     bake(config)
 
 
-def watch(config):
-    bake(config, reload_on_change=True)
-
-
 def bake(config=None, reload_on_change=False):
     make_empty(config["outpath"])
     parameters = vars(config)["config"]

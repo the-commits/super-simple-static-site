@@ -12,5 +12,8 @@ def main():
     except NotImplementedError:
         print("Configuration file is empty.")
         exit(1)
+    except PermissionError:
+        print("No write permission for configuration directory.")
+        exit(1)
 
     site.build(__ssss_config__)

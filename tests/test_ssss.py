@@ -1,4 +1,5 @@
 import os
+import stat
 import subprocess
 from os import unlink
 
@@ -123,3 +124,16 @@ def test_ssss_init_file_structure():
     assert index_md_content == application_default_index_md_content()
     assert template_content == application_default_template_file_content()
     assert base_html_content == application_default_base_html_content()
+
+
+def test_ssss_init_no_write_permission():
+    locked_dir = "/tmp/ssss_locked_dir"
+    os.makedirs(locked_dir, exist_ok=True)
+    os.chmod(locked_dir, stat.S_IRUSR | stat.S_IXUSR)
+    try:
+        output, returncode = run_ssss("--init", "-c", locked_dir + "/ssss.yml")
+        assert returncode == 1
+        assert "No write permission" in output
+    finally:
+        os.chmod(locked_dir, stat.S_IRWXU)
+        os.rmdir(locked_dir)
