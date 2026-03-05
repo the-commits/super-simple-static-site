@@ -132,7 +132,7 @@ Do not force-add any of these to the repository.
 
 ## Pull Requests
 
-Use the pull request template provided. All checklist items must be addressed before requesting review.
+Branch from `main`, open a PR back to `main`. Use the pull request template provided. All checklist items must be addressed before requesting review.
 
 ## Commit Messages — Conventional Commits
 
