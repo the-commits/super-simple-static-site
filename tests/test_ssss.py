@@ -23,6 +23,18 @@ def test_ssss_no_args():
     assert "No configuration file found" in output
 
 
+def test_ssss_version():
+    output, returncode = run_ssss("--version")
+    assert returncode == 0
+    assert "ssss" in output
+
+
+def test_ssss_short_version():
+    output, returncode = run_ssss("-v")
+    assert returncode == 0
+    assert "ssss" in output
+
+
 def test_ssss_no_args_after_init():
     output, returncode = run_ssss("--init", "-c", "test.yml")
     assert returncode == 0

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import yaml
 
-from ssss.common.application import application_default_config_data
+from ssss.common.application import application_default_config_data, application_version
 from ssss.common.application.variables import (
     application_default_template_path,
     application_default_template_file,
@@ -55,6 +55,12 @@ class Application(Arguments):
             action="store_true",
             help="Initialize configuration file and site structure",
             default=False,
+        )
+        self.parse.add_argument(
+            "-v",
+            "--version",
+            action="version",
+            version=application_version(),
         )
         args = self.parse.parse_args()
 
