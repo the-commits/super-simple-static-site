@@ -1,0 +1,19 @@
+# {{ title }}
+
+> {{ description }}
+
+## Site
+
+- URL: {{ url }}
+- Author: {{ author }}
+- Email: {{ email }}
+
+## Pages
+
+{% for page in pages %}- [{{ page.title | default(page.url) }}]({{ url }}{{ page.url }})
+{% endfor %}
+
+## Feeds
+
+- RSS: {{ url }}/rss.xml
+- Sitemap: {{ url }}/sitemap.xml

@@ -1,4 +1,13 @@
 import importlib.metadata
+from pathlib import Path
+
+
+def scaffold_directory() -> Path:
+    return Path(__file__).parent.parent.parent / "scaffold"
+
+
+def read_scaffold_file(filename) -> str:
+    return (scaffold_directory() / filename).read_text()
 
 
 def application_name() -> str:
@@ -6,13 +15,7 @@ def application_name() -> str:
 
 
 def application_description() -> str:
-    long_description = importlib.metadata.metadata(application_name())["description"]
-    short_description = long_description.split(".")[1]
-    return (
-        application_name()
-        + " - "
-        + "".join([c for c in short_description if c.isalnum() or c.isspace()])
-    )
+    return application_name() + " - Super Simple Static Site"
 
 
 def application_version() -> str:
@@ -88,37 +91,36 @@ def application_default_config_data() -> dict:
 
 
 def application_default_base_html_content() -> str:
-    return (
-        "<!DOCTYPE html>\n"
-        '<html lang="en">\n'
-        "<head>\n"
-        '  <meta charset="utf-8">\n'
-        '  <meta name="viewport" content="width=device-width, initial-scale=1">\n'
-        '  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css">\n'
-        "  <title>{{ title }}</title>\n"
-        '  <meta name="description" content="{{ description }}">\n'
-        "</head>\n"
-        "<body>\n"
-        '  <main class="container">\n'
-        "    {% block content %}{% endblock %}\n"
-        "  </main>\n"
-        "</body>\n"
-        "</html>\n"
-    )
+    return read_scaffold_file("base.html")
+
+
+def application_default_base_html_no_seo_content() -> str:
+    content = read_scaffold_file("base.html")
+    return strip_seo_blocks(content)
+
+
+def strip_seo_blocks(content) -> str:
+    import re
+
+    pattern = r"    <!-- (?:Canonical|Open Graph|Twitter Card|LLM / AI crawler) -->.*?(?=\n    <!--|\n    <link rel=\"stylesheet\"|\Z)"
+    return re.sub(pattern, "", content, flags=re.DOTALL)
 
 
 def application_default_template_file_content() -> str:
-    return (
-        '{% extends "_templates/base.html" %}\n'
-        "{% block content %}\n"
-        "{{ content }}\n"
-        "{% endblock %}\n"
-    )
+    return read_scaffold_file("default.j2")
 
 
 def application_default_index_md_content() -> str:
-    return (
-        "# Welcome\n\n"
-        "This is your new **ssss** site.\n\n"
-        "Edit `site/source/index.md` to get started.\n"
-    )
+    return read_scaffold_file("index.md")
+
+
+def application_default_sitemap_content() -> str:
+    return read_scaffold_file("sitemap.xml.j2")
+
+
+def application_default_rss_content() -> str:
+    return read_scaffold_file("rss.xml.j2")
+
+
+def application_default_llms_txt_content() -> str:
+    return read_scaffold_file("llms.txt.j2")

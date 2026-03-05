@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="{{ language | default('en') }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+
+    <!-- Primary meta -->
+    <title>{% block title %}{{ title | default('') }}{% endblock %}</title>
+    <meta name="description" content="{% block description %}{{ description | default('') }}{% endblock %}">
+    <meta name="author" content="{{ author | default('') }}">
+    <meta name="robots" content="index, follow">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="{{ url | default('') }}{{ page_url | default('') }}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}{{ title | default('') }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ description | default('') }}{% endblock %}">
+    <meta property="og:url" content="{{ url | default('') }}{{ page_url | default('') }}">
+    <meta property="og:site_name" content="{{ title | default('') }}">
+    {% if image %}<meta property="og:image" content="{{ image }}">{% endif %}
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ title | default('') }}{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}{{ description | default('') }}{% endblock %}">
+    {% if twitter %}<meta name="twitter:site" content="{{ twitter }}">{% endif %}
+    {% if image %}<meta name="twitter:image" content="{{ image }}">{% endif %}
+
+    <!-- Feed & sitemap autodiscovery -->
+    <link rel="alternate" type="application/rss+xml" title="{{ title | default('') }} RSS Feed" href="{{ url | default('') }}/rss.xml">
+    <link rel="sitemap" type="application/xml" href="{{ url | default('') }}/sitemap.xml">
+
+    <!-- LLM / AI crawler -->
+    <meta name="llm-content" content="allowed">
+    <link rel="llms-txt" href="{{ url | default('') }}/llms.txt">
+
+    <!-- Theme -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+
+    <!-- Pico CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  </head>
+  <body>
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

@@ -12,8 +12,10 @@ from ssss.common.fs import make_empty
 from ssss.common.fs.file import touch_if_not_exists
 
 
-def run_ssss(*args):
-    result = subprocess.run(["ssss"] + list(args), capture_output=True, text=True)
+def run_ssss(*args, stdin=None):
+    result = subprocess.run(
+        ["ssss"] + list(args), capture_output=True, text=True, input=stdin
+    )
     return result.stdout, result.returncode
 
 
@@ -36,7 +38,7 @@ def test_ssss_short_version():
 
 
 def test_ssss_no_args_after_init():
-    output, returncode = run_ssss("--init", "-c", "test.yml")
+    output, returncode = run_ssss("--scaffold", "-c", "test.yml")
     assert returncode == 0
     assert (
         "Looking at: _templates/__index.j2, using default template: _templates/default.j2"
@@ -64,7 +66,11 @@ def test_ssss_no_args_after_init_with_empty_config():
     unlink("test.yml")
 
 
-def test_ssss_short_help():
+def test_ssss_help_description():
+    output, returncode = run_ssss("--help")
+    assert returncode == 0
+    assert "ssss - Super Simple Static Site" in output
+
     output, returncode = run_ssss("-h")
     assert returncode == 0
     assert "-h, --help" in output and "show this help message and exit" in output
@@ -87,8 +93,28 @@ def test_ssss_init():
         expected_contents = f.read()
 
     unlink("ssss.yml")
+    make_empty("site", True)
 
     assert actual_contents == expected_contents
+
+
+def test_ssss_init_only():
+    output, returncode = run_ssss("--init")
+    assert returncode == 0
+
+    site_exists = os.path.exists("site")
+    source_exists = os.path.exists("site/source")
+    templates_exist = os.path.exists("site/source/_templates")
+    build_exists = os.path.exists("site/build")
+    base_not_written = not os.path.exists("site/source/_templates/base.html")
+    template_not_written = not os.path.exists("site/source/_templates/default.j2")
+    index_not_written = not os.path.exists("site/source/index.md")
+
+    unlink("ssss.yml")
+    make_empty("site", True)
+
+    assert site_exists and source_exists and templates_exist and build_exists
+    assert base_not_written and template_not_written and index_not_written
 
 
 def test_ssss_init_with_config():
@@ -102,12 +128,13 @@ def test_ssss_init_with_config():
         expected_contents = f.read()
 
     unlink("custom_config.yaml")
+    make_empty("site", True)
 
     assert actual_contents == expected_contents
 
 
-def test_ssss_init_file_structure():
-    output, returncode = run_ssss("--init")
+def test_ssss_scaffold():
+    output, returncode = run_ssss("--scaffold")
     assert returncode == 0
 
     site_exists = os.path.exists("site")
@@ -149,3 +176,139 @@ def test_ssss_init_no_write_permission():
     finally:
         os.chmod(locked_dir, stat.S_IRWXU)
         os.rmdir(locked_dir)
+
+
+def test_ssss_init_twice_does_not_overwrite_config():
+    run_ssss("--scaffold")
+
+    with open("ssss.yml", "r") as f:
+        original = f.read()
+
+    output, returncode = run_ssss("--init")
+    assert returncode == 0
+
+    with open("ssss.yml", "r") as f:
+        after = f.read()
+
+    unlink("ssss.yml")
+    make_empty("site", True)
+
+    assert original == after
+
+
+def test_ssss_scaffold_with_dedicated_template():
+    run_ssss("--scaffold")
+
+    with open("site/source/_templates/__index.j2", "w") as f:
+        f.write(
+            '{% extends "_templates/base.html" %}\n'
+            "{% block content %}\n"
+            "<article>{{ content }}</article>\n"
+            "{% endblock %}\n"
+        )
+
+    output, returncode = run_ssss()
+    assert returncode == 0
+    assert os.path.exists("site/build/index.html")
+
+    with open("site/build/index.html", "r") as f:
+        html = f.read()
+
+    unlink("ssss.yml")
+    make_empty("site", True)
+
+    assert "<article>" in html
+
+
+def test_ssss_scaffold_with_subdirectory_content():
+    run_ssss("--scaffold")
+
+    os.makedirs("site/source/blog", exist_ok=True)
+    with open("site/source/blog/post.md", "w") as f:
+        f.write("# Post\n\nHello from blog.\n")
+
+    output, returncode = run_ssss()
+    assert returncode == 0
+    assert os.path.exists("site/build/blog/post.html")
+
+    unlink("ssss.yml")
+    make_empty("site", True)
+
+
+def test_ssss_scaffold_writes_sitemap_and_rss_and_llms():
+    output, returncode = run_ssss("--scaffold", "-c", "test.yml")
+    assert returncode == 0
+
+    assert os.path.exists("site/source/_templates/sitemap.xml.j2")
+    assert os.path.exists("site/source/_templates/rss.xml.j2")
+    assert os.path.exists("site/source/_templates/llms.txt.j2")
+
+    unlink("test.yml")
+    make_empty("site", True)
+
+
+def test_ssss_scaffold_no_sitemap_skips_sitemap():
+    output, returncode = run_ssss("--scaffold", "--no-sitemap", "-c", "test.yml")
+    assert returncode == 0
+    assert not os.path.exists("site/source/_templates/sitemap.xml.j2")
+    assert os.path.exists("site/source/_templates/rss.xml.j2")
+
+    unlink("test.yml")
+    make_empty("site", True)
+
+
+def test_ssss_scaffold_no_feed_skips_rss():
+    output, returncode = run_ssss("--scaffold", "--no-feed", "-c", "test.yml")
+    assert returncode == 0
+    assert not os.path.exists("site/source/_templates/rss.xml.j2")
+    assert os.path.exists("site/source/_templates/sitemap.xml.j2")
+
+    unlink("test.yml")
+    make_empty("site", True)
+
+
+def test_ssss_scaffold_no_llm_skips_llms_txt():
+    output, returncode = run_ssss("--scaffold", "--no-llm", "-c", "test.yml")
+    assert returncode == 0
+    assert not os.path.exists("site/source/_templates/llms.txt.j2")
+    assert os.path.exists("site/source/_templates/sitemap.xml.j2")
+
+    unlink("test.yml")
+    make_empty("site", True)
+
+
+def test_ssss_scaffold_no_seo_base_html_omits_og():
+    output, returncode = run_ssss("--scaffold", "--no-seo", "-c", "test.yml")
+    assert returncode == 0
+
+    with open("site/source/_templates/base.html", "r") as f:
+        content = f.read()
+
+    unlink("test.yml")
+    make_empty("site", True)
+
+    assert 'property="og:title"' not in content
+    assert 'name="twitter:card"' not in content
+    assert 'rel="canonical"' not in content
+
+
+def test_ssss_scaffold_overwrite_yes_replaces_file():
+    run_ssss("--scaffold", "-c", "test.yml")
+
+    with open("site/source/_templates/base.html", "w") as f:
+        f.write("replaced")
+
+    num_prompts = 6
+    output, returncode = run_ssss(
+        "--scaffold", "-c", "test.yml", stdin="y\n" * num_prompts
+    )
+    assert returncode == 0
+
+    with open("site/source/_templates/base.html", "r") as f:
+        content = f.read()
+
+    unlink("test.yml")
+    make_empty("site", True)
+
+    assert "replaced" not in content
+    assert "<!doctype html>" in content
