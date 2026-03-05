@@ -7,7 +7,19 @@ templates and content. It generates static HTML files for an efficient and light
 
 ## Installation
 
-To install ssss, use the following command:
+The recommended way to install ssss is via [pipx](https://pipx.pypa.io), which installs Python CLI tools in isolated environments and makes them available globally:
+
+```bash
+pipx install ssss
+```
+
+On Arch Linux, install pipx first if needed:
+
+```bash
+sudo pacman -S python-pipx
+```
+
+Alternatively, if you are in an active virtual environment:
 
 ```bash
 pip install ssss
