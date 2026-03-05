@@ -93,11 +93,15 @@ def application_default_base_html_content() -> str:
         '<html lang="en">\n'
         "<head>\n"
         '  <meta charset="utf-8">\n'
+        '  <meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        '  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.1.1/css/pico.min.css">\n'
         "  <title>{{ title }}</title>\n"
         '  <meta name="description" content="{{ description }}">\n'
         "</head>\n"
         "<body>\n"
-        "  {% block content %}{% endblock %}\n"
+        '  <main class="container">\n'
+        "    {% block content %}{% endblock %}\n"
+        "  </main>\n"
         "</body>\n"
         "</html>\n"
     )
@@ -113,4 +117,8 @@ def application_default_template_file_content() -> str:
 
 
 def application_default_index_md_content() -> str:
-    return "# Welcome\n\nThis is your new ssss site.\n"
+    return (
+        "# Welcome\n\n"
+        "This is your new **ssss** site.\n\n"
+        "Edit `site/source/index.md` to get started.\n"
+    )
