@@ -130,3 +130,50 @@ Do not force-add any of these to the repository.
 ## Pull Requests
 
 Use the pull request template provided. All checklist items must be addressed before requesting review.
+
+## Commit Messages — Conventional Commits
+
+This project uses [commitizen](https://commitizen-tools.github.io/commitizen/) with the Conventional Commits standard. Commit messages drive automatic changelog generation and version bumping — use the correct format.
+
+### Format
+
+```
+<type>(<scope>): <subject>
+```
+
+`scope` is optional. `subject` is lowercase, no trailing period.
+
+### Types
+
+| Type | When to use | Version bump |
+|---|---|---|
+| `feat` | New feature | minor |
+| `fix` | Bug fix | patch |
+| `docs` | Documentation only | none |
+| `refactor` | Code restructure, no behaviour change | none |
+| `test` | Adding or fixing tests | none |
+| `chore` | Build, deps, tooling | none |
+| `perf` | Performance improvement | patch |
+
+Breaking changes — append `!` after the type or add `BREAKING CHANGE:` in the footer — trigger a **major** bump.
+
+### Examples
+
+```
+feat(md): support frontmatter variables in content files
+fix(fs): handle missing config directory on first run
+docs: update README with configuration examples
+chore(deps): bump pyyaml to 6.0.2
+feat!: rename --init flag to --setup
+```
+
+### Tooling
+
+```bash
+# Interactive commit prompt (guides you through the format)
+poetry run cz commit
+
+# Bump version and update CHANGELOG automatically
+poetry run cz bump
+```
+

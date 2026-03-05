@@ -19,6 +19,16 @@ ssss = "ssss:main"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"
 pytest-cov = "^4.0.0"
+commitizen = "^4.13.9"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_scheme = "pep440"
+version_provider = "poetry"
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"
+major_version_zero = false
 
 [build-system]
 requires = ["poetry-core"]
