@@ -2,7 +2,8 @@ import os
 import unittest
 
 from ssss.common.fs.directory import get_full_path, get_current_directory
-from ssss.common.fs.file import write_if_not_exists
+from ssss.common.fs.file import find_config, write_if_not_exists
+from ssss.common.application import application_name
 
 
 class Fullpath(unittest.TestCase):
@@ -13,6 +14,18 @@ class Fullpath(unittest.TestCase):
     def test_dot_full_path(self):
         path = get_full_path(".")
         self.assertEqual(get_current_directory(), path)
+
+
+class FindConfig(unittest.TestCase):
+    def test_finds_config_in_current_directory(self):
+        config_path = os.path.join(get_current_directory(), application_name() + ".yml")
+        with open(config_path, "w") as f:
+            f.write("site:\n  title: Test\n")
+        try:
+            result = find_config()
+            self.assertEqual(result, os.path.abspath(config_path))
+        finally:
+            os.unlink(config_path)
 
 
 class WriteIfNotExists(unittest.TestCase):
