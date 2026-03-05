@@ -8,7 +8,11 @@ def application_name() -> str:
 def application_description() -> str:
     long_description = importlib.metadata.metadata(application_name())["description"]
     short_description = long_description.split(".")[1]
-    return application_name() + " - " + "".join([c for c in short_description if c.isalnum() or c.isspace()])
+    return (
+        application_name()
+        + " - "
+        + "".join([c for c in short_description if c.isalnum() or c.isspace()])
+    )
 
 
 def application_version() -> str:
@@ -66,9 +70,11 @@ def application_default_site() -> dict:
 
 
 def application_default_template_file() -> str:
-    return application_default_template_path() \
-        + application_default_template_name() \
+    return (
+        application_default_template_path()
+        + application_default_template_name()
         + application_default_template_extension()
+    )
 
 
 def application_default_base_html() -> str:
@@ -79,3 +85,32 @@ def application_default_config_data() -> dict:
     return {
         "site": application_default_site(),
     }
+
+
+def application_default_base_html_content() -> str:
+    return (
+        "<!DOCTYPE html>\n"
+        '<html lang="en">\n'
+        "<head>\n"
+        '  <meta charset="utf-8">\n'
+        "  <title>{{ title }}</title>\n"
+        '  <meta name="description" content="{{ description }}">\n'
+        "</head>\n"
+        "<body>\n"
+        "  {% block content %}{% endblock %}\n"
+        "</body>\n"
+        "</html>\n"
+    )
+
+
+def application_default_template_file_content() -> str:
+    return (
+        '{% extends "_templates/base.html" %}\n'
+        "{% block content %}\n"
+        "{{ content }}\n"
+        "{% endblock %}\n"
+    )
+
+
+def application_default_index_md_content() -> str:
+    return "# Welcome\n\nThis is your new ssss site.\n"

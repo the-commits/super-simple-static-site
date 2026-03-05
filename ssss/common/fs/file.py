@@ -19,8 +19,9 @@ def application_config_file_extension() -> list[str]:
 
 def search_config_in_dir(directory) -> str | None:
     for ext in application_config_file_extension():
-        if os.path.exists(directory + "/" + application_name() + ext) and os.path.isfile(
-                directory + "/" + application_name() + ext):
+        if os.path.exists(
+            directory + "/" + application_name() + ext
+        ) and os.path.isfile(directory + "/" + application_name() + ext):
             return os.path.abspath(directory + "/" + application_name() + ext)
     return None
 
@@ -41,3 +42,9 @@ def search_config_in_dirs() -> str | None:
 def touch_if_not_exists(path):
     if not os.path.exists(path):
         Path(path).touch()
+
+
+def write_if_not_exists(path, content):
+    if not os.path.exists(path):
+        with open(path, "w") as file:
+            file.write(content)
