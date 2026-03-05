@@ -5,6 +5,9 @@
 ```bash
 poetry install
 poetry build
+
+# Install commit-msg hook (blocks non-Conventional Commits locally)
+poetry run pre-commit install --hook-type commit-msg
 ```
 
 ## Running Tests
