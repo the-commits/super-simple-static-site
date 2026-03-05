@@ -4,19 +4,34 @@ from pathlib import Path
 import yaml
 
 from ssss.common.application import application_default_config_data
-from ssss.common.application.variables import application_default_template_path, application_default_template_file, \
-    application_default_base_html, application_default_source, application_default_output, application_default_data, \
-    application_default_encoding, application_default_followlinks, application_default_filters, application_default_site
+from ssss.common.application.variables import (
+    application_default_template_path,
+    application_default_template_file,
+    application_default_base_html,
+    application_default_source,
+    application_default_output,
+    application_default_data,
+    application_default_encoding,
+    application_default_followlinks,
+    application_default_filters,
+    application_default_site,
+    application_default_base_html_content,
+    application_default_template_file_content,
+    application_default_index_md_content,
+)
 from ssss.common.fs import find_config
-from ssss.common.fs.directory import get_full_path, create_directory_if_not_exists, have_write_permission
-from ssss.common.fs.file import touch_if_not_exists
+from ssss.common.fs.directory import (
+    get_full_path,
+    create_directory_if_not_exists,
+    have_write_permission,
+)
+from ssss.common.fs.file import write_if_not_exists
 from ssss.common.md import variables, render
 from ssss.configuration.arguments import Arguments
 from ssss.configuration.default import config_file_path
 
 
 class Application(Arguments):
-
     def __init__(self):
         self.config = {}
         self.__init_config = None
@@ -37,16 +52,12 @@ class Application(Arguments):
         return self.config
 
     def handle_args(self):
-        self.parse.add_argument(
-            "-c",
-            "--config",
-            help="Path to configuration file"
-        )
+        self.parse.add_argument("-c", "--config", help="Path to configuration file")
         self.parse.add_argument(
             "--init",
             action="store_true",
             help="Initialize configuration file and site structure",
-            default=False
+            default=False,
         )
         args = self.parse.parse_args()
 
@@ -80,14 +91,30 @@ class Application(Arguments):
 
     def set_config(self):
         self.data = {k: v for k, v in self.data.items() if v}
-        self.config["searchpath"] = get_full_path(self.data.get("source", application_default_source()))
-        self.config["outpath"] = get_full_path(self.data.get("output", application_default_output()))
-        self.config["contexts"] = [(self.data.get("data", application_default_data()), variables)]
-        self.config["rules"] = [(self.data.get("data", application_default_data()), render.run)]
-        self.config["encoding"] = str(self.data.get("encoding", application_default_encoding()))
-        self.config["followlinks"] = str(self.data.get("followlinks", application_default_followlinks()))
-        self.config["filters"] = dict(self.data.get("filters", application_default_filters()))
-        self.config["env_globals"] = dict(self.data.get("site", application_default_site()))
+        self.config["searchpath"] = get_full_path(
+            self.data.get("source", application_default_source())
+        )
+        self.config["outpath"] = get_full_path(
+            self.data.get("output", application_default_output())
+        )
+        self.config["contexts"] = [
+            (self.data.get("data", application_default_data()), variables)
+        ]
+        self.config["rules"] = [
+            (self.data.get("data", application_default_data()), render.run)
+        ]
+        self.config["encoding"] = str(
+            self.data.get("encoding", application_default_encoding())
+        )
+        self.config["followlinks"] = str(
+            self.data.get("followlinks", application_default_followlinks())
+        )
+        self.config["filters"] = dict(
+            self.data.get("filters", application_default_filters())
+        )
+        self.config["env_globals"] = dict(
+            self.data.get("site", application_default_site())
+        )
 
     def init_config(self):
 
@@ -113,28 +140,20 @@ class Application(Arguments):
         create_directory_if_not_exists(self.config["searchpath"])
 
         create_directory_if_not_exists(
-            os.path.join(
-                self.config["searchpath"],
-                application_default_template_path()
-            )
+            os.path.join(self.config["searchpath"], application_default_template_path())
         )
 
-        touch_if_not_exists(
-            os.path.join(self.config["searchpath"],
-                         application_default_base_html()
-                         )
+        write_if_not_exists(
+            os.path.join(self.config["searchpath"], application_default_base_html()),
+            application_default_base_html_content(),
         )
-        touch_if_not_exists(
+        write_if_not_exists(
             os.path.join(
-                self.config["searchpath"],
-                application_default_template_file()
-            )
+                self.config["searchpath"], application_default_template_file()
+            ),
+            application_default_template_file_content(),
         )
-        touch_if_not_exists(
-            os.path.join(
-                os.path.join(
-                    self.config["searchpath"],
-                    "index.md"
-                )
-            )
+        write_if_not_exists(
+            os.path.join(os.path.join(self.config["searchpath"], "index.md")),
+            application_default_index_md_content(),
         )
