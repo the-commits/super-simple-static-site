@@ -11,6 +11,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      administration: write
 
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +40,26 @@ jobs:
           cz bump --yes && echo "bumped=true" >> $GITHUB_OUTPUT || \
           { code=$?; [ $code -eq 3 ] && echo "bumped=false" >> $GITHUB_OUTPUT && exit 0 || exit $code; }
 
+      - name: Disable branch ruleset
+        if: steps.bump.outputs.bumped == 'true'
+        run: |
+          gh api --method PUT repos/${{ github.repository }}/rulesets/501812 \
+            --input - <<'EOF'
+          {"enforcement": "disabled"}
+          EOF
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Push tag and changelog
         if: steps.bump.outputs.bumped == 'true'
         run: git push --follow-tags
+
+      - name: Re-enable branch ruleset
+        if: always() && steps.bump.outputs.bumped == 'true'
+        run: |
+          gh api --method PUT repos/${{ github.repository }}/rulesets/501812 \
+            --input - <<'EOF'
+          {"enforcement": "active"}
+          EOF
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
