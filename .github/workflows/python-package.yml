@@ -43,9 +43,8 @@ jobs:
         run: |
           poetry install
           poetry build
-          poetry run pytest --cov=ssss --cov-report=xml
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+          poetry run pytest --cov=ssss --cov-branch --cov-report=xml
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          files: coverage.xml
-          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
