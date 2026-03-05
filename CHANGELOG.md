@@ -17,14 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Branch protection ruleset for `main` and `release/**`: no force push, no deletion, PR + codeowner review required
 - `CHANGELOG.md` following Keep a Changelog format
 - commitizen for automated changelog generation and version bumping
+- `flake8` added as dev dependency so the linter is available in the Poetry virtual environment
+- Explicit `jinja2 ^3.1.6` and `zipp >=3.19.1` dependencies to close Dependabot security alerts
 
 ### Changed
 
 - Bumped `pyyaml` from `^6.0` to `^6.0.2` for Python 3.14 compatibility
+- Bumped `pytest` from `^7.3.1` to `^8.0.0` and `pytest-cov` from `^4.0.0` to `^6.0.0` for Python 3.14 compatibility
+- Set `pyproject.toml` version to `1.0.0` to match the published PyPI release
 
 ### Fixed
 
 - Dev environment setup now works on Python 3.14
+- Resolved 5 Dependabot security vulnerabilities: Jinja2 sandbox breakout (3 CVEs) and zipp DoS
 
 ## v1.0.0 (2023-04-19)
 
