@@ -125,3 +125,8 @@ ssss --help
 | `--config`, `-c` | Path to a configuration file |
 | `--version`, `-v` | Print the version and exit |
 | `--help`, `-h` | Show help and exit |
+
+## License
+
+[AGPL-3.0-or-later](LICENSE) © Magnus Åberg (The Commits)
+
