@@ -7,7 +7,23 @@ Scaffold a new site in seconds and run it anywhere.
 
 ## Installation
 
-The recommended way to install ssss is via [pipx](https://pipx.pypa.io), which installs Python CLI tools in isolated environments and makes them available globally:
+### Using uv / uvx (Recommended)
+
+Run `ssss` instantly without manual installation via [uvx](https://docs.astral.sh/uv/):
+
+```bash
+uvx ssss --scaffold
+```
+
+Or install `ssss` globally as a tool using `uv`:
+
+```bash
+uv tool install ssss
+```
+
+### Using pipx
+
+Install `ssss` in an isolated environment via [pipx](https://pipx.pypa.io):
 
 ```bash
 pipx install ssss
@@ -18,6 +34,8 @@ On Arch Linux, install pipx first if needed:
 ```bash
 sudo pacman -S python-pipx
 ```
+
+### Using pip
 
 Alternatively, if you are in an active virtual environment:
 
