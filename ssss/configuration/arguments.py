@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2023-2026 Magnus Åberg (The Commits) <himself@magnusaberg.me>
+
 import argparse
 
 from ssss.common.application import application_name, application_description, application_version
