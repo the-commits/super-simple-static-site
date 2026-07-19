@@ -29,6 +29,23 @@ class Variables(unittest.TestCase):
         self.assertEqual(result["title"], "My Page")
         self.assertEqual(result["author"], "Alice")
 
+    def test_variables_fenced_code_and_lists(self):
+        content = (
+            "title: Code Test\n\n"
+            "# {{ title }}\n\n"
+            "**References:**\n\n"
+            "- [Link](https://example.com)\n\n"
+            "```c\n"
+            "#include <stdio.h>\n"
+            "int main(void) { return 0; }\n"
+            "```\n"
+        )
+        template = self._make_template(content)
+        result = variables(template)
+        self.assertIn("<h1>Code Test</h1>", result["content"])
+        self.assertIn('<ul>\n<li><a href="https://example.com">Link</a></li>\n</ul>', result["content"])
+        self.assertIn('<pre><code class="language-c">#include &lt;stdio.h&gt;', result["content"])
+
 
 if __name__ == "__main__":
     unittest.main()
