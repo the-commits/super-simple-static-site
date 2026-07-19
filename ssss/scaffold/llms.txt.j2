@@ -5,8 +5,8 @@
 ## Site
 
 - URL: {{ url }}
-- Author: {{ author }}
-- Email: {{ email }}
+- Author: {{ author | default('developer') }}
+- Email: {{ email | default('developer@localhost') }}
 
 ## Pages
 

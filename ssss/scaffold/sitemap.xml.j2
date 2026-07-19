@@ -2,10 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   {% for page in pages %}
   <url>
-    <loc>{{ url }}{{ page.url }}</loc>
-    {% if page.lastmod %}<lastmod>{{ page.lastmod }}</lastmod>{% endif %}
-    <changefreq>{{ page.changefreq | default('monthly') }}</changefreq>
-    <priority>{{ page.priority | default('0.5') }}</priority>
+    <loc>{{ url | e }}{{ page.url | e }}</loc>
+    {% if page.lastmod %}<lastmod>{{ page.lastmod | e }}</lastmod>{% endif %}
+    <changefreq>{{ page.changefreq | default('monthly') | e }}</changefreq>
+    <priority>{{ page.priority | default('0.5') | e }}</priority>
   </url>
   {% endfor %}
 </urlset>

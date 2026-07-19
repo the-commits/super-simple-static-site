@@ -1,6 +1,6 @@
 site:
-  author: Site Author
+  author: developer
   description: Site Description
-  email: asssa@example.com
+  email: developer@localhost
   title: Site Name
-  url: https://example.com
+  url: http://localhost:8000

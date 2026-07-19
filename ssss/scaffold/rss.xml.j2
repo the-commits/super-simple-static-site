@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>{{ title }}</title>
-    <link>{{ url }}</link>
-    <description>{{ description }}</description>
-    <language>{{ language | default('en') }}</language>
-    <atom:link href="{{ url }}/rss.xml" rel="self" type="application/rss+xml"/>
+    <title>{{ title | e }}</title>
+    <link>{{ url | e }}</link>
+    <description>{{ description | e }}</description>
+    <language>{{ language | default('en') | e }}</language>
+    <atom:link href="{{ url | e }}/rss.xml" rel="self" type="application/rss+xml"/>
     {% for post in posts %}
     <item>
-      <title>{{ post.title }}</title>
-      <link>{{ url }}{{ post.url }}</link>
-      <guid>{{ url }}{{ post.url }}</guid>
-      <description>{{ post.description | default(post.content) }}</description>
-      {% if post.date %}<pubDate>{{ post.date }}</pubDate>{% endif %}
+      <title>{{ post.title | e }}</title>
+      <link>{{ url | e }}{{ post.url | e }}</link>
+      <guid>{{ url | e }}{{ post.url | e }}</guid>
+      <description>{{ post.description | default(post.content) | e }}</description>
+      {% if post.date %}<pubDate>{{ post.date | e }}</pubDate>{% endif %}
     </item>
     {% endfor %}
   </channel>

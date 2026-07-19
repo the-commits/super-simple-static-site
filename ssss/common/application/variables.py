@@ -66,9 +66,9 @@ def application_default_site() -> dict:
     return {
         "title": "Site Name",
         "description": "Site Description",
-        "author": "Site Author",
-        "url": "https://example.com",
-        "email": "asssa@example.com",
+        "author": "developer",
+        "url": "http://localhost:8000",
+        "email": "developer@localhost",
     }
 
 
