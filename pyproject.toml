@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ssss"
-version = "1.3.1"
+version = "1.3.2"
 description = "ssss is a static site generator that uses Jinja2 and Markdown to build fast, lightweight static HTML sites. Scaffold a new site in seconds with --scaffold and run it anywhere."
 authors = ["Magnus Åberg (The Commits) <himself@magnusaberg.me>"]
 license = "AGPL-3.0-or-later"
