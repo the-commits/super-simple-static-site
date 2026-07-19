@@ -37,12 +37,16 @@ jobs:
       - name: Check SPDX license headers
         run: |
           python -c '
-          import os, sys, tomllib
+          import os, sys
           from pathlib import Path
 
-          with open("pyproject.toml", "rb") as f:
-              pyproject = tomllib.load(f)
-          lic = pyproject.get("tool", {}).get("poetry", {}).get("license")
+          lic = None
+          with open("pyproject.toml", "r", encoding="utf-8") as f:
+              for line in f:
+                  if line.strip().startswith("license ="):
+                      lic = line.split("=")[1].strip().strip("\"").strip("\x27")
+                      break
+
           if lic != "AGPL-3.0-or-later":
               print(f"pyproject.toml license is {lic}, expected AGPL-3.0-or-later", file=sys.stderr)
               sys.exit(1)
