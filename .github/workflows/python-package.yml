@@ -34,6 +34,41 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install flake8 poetry
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Check SPDX license headers
+        run: |
+          python -c '
+          import os, sys, tomllib
+          from pathlib import Path
+
+          with open("pyproject.toml", "rb") as f:
+              pyproject = tomllib.load(f)
+          lic = pyproject.get("tool", {}).get("poetry", {}).get("license")
+          if lic != "AGPL-3.0-or-later":
+              print(f"pyproject.toml license is {lic}, expected AGPL-3.0-or-later", file=sys.stderr)
+              sys.exit(1)
+
+          license_text = Path("LICENSE").read_text(encoding="utf-8")
+          if "GNU AFFERO GENERAL PUBLIC LICENSE" not in license_text:
+              print("LICENSE file does not contain AGPL v3 text", file=sys.stderr)
+              sys.exit(1)
+
+          EXPECTED = "SPDX-License-Identifier: AGPL-3.0-or-later"
+          missing = []
+          for root, dirs, files in os.walk("."):
+              if "venv" in root or ".git" in root or "__pycache__" in root or "site/build" in root:
+                  continue
+              for file in files:
+                  if file.endswith(".py"):
+                      filepath = Path(root) / file
+                      if EXPECTED not in filepath.read_text(encoding="utf-8"):
+                          missing.append(str(filepath))
+
+          if missing:
+              print(f"Python files missing SPDX header: {missing}", file=sys.stderr)
+              sys.exit(1)
+
+          print("SPDX license header assertion passed successfully.")
+          '
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
