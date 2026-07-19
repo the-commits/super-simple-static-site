@@ -165,6 +165,10 @@ class Application(Arguments):
         self.config["env_globals"] = dict(
             self.data.get("site", application_default_site())
         )
+        self.config["no_sitemap"] = self.__no_sitemap
+        self.config["no_feed"] = self.__no_feed
+        self.config["no_llm"] = self.__no_llm
+        self.config["no_seo"] = self.__no_seo
 
     def init_config(self):
 

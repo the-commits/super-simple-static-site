@@ -12,9 +12,12 @@ from ssss.common.fs import make_empty
 from ssss.common.fs.file import touch_if_not_exists
 
 
+import sys
+
+
 def run_ssss(*args, stdin=None):
     result = subprocess.run(
-        ["ssss"] + list(args), capture_output=True, text=True, input=stdin
+        [sys.executable, "-m", "ssss"] + list(args), capture_output=True, text=True, input=stdin
     )
     return result.stdout, result.returncode
 
@@ -242,6 +245,11 @@ def test_ssss_scaffold_writes_sitemap_and_rss_and_llms():
     assert os.path.exists("site/source/_templates/sitemap.xml.j2")
     assert os.path.exists("site/source/_templates/rss.xml.j2")
     assert os.path.exists("site/source/_templates/llms.txt.j2")
+    assert os.path.exists("site/build/sitemap.xml")
+    assert os.path.exists("site/build/rss.xml")
+    assert os.path.exists("site/build/feed.xml")
+    assert os.path.exists("site/build/llms.txt")
+    assert os.path.exists("site/build/robots.txt")
 
     unlink("test.yml")
     make_empty("site", True)
@@ -251,7 +259,9 @@ def test_ssss_scaffold_no_sitemap_skips_sitemap():
     output, returncode = run_ssss("--scaffold", "--no-sitemap", "-c", "test.yml")
     assert returncode == 0
     assert not os.path.exists("site/source/_templates/sitemap.xml.j2")
+    assert not os.path.exists("site/build/sitemap.xml")
     assert os.path.exists("site/source/_templates/rss.xml.j2")
+    assert os.path.exists("site/build/rss.xml")
 
     unlink("test.yml")
     make_empty("site", True)
@@ -261,7 +271,10 @@ def test_ssss_scaffold_no_feed_skips_rss():
     output, returncode = run_ssss("--scaffold", "--no-feed", "-c", "test.yml")
     assert returncode == 0
     assert not os.path.exists("site/source/_templates/rss.xml.j2")
+    assert not os.path.exists("site/build/rss.xml")
+    assert not os.path.exists("site/build/feed.xml")
     assert os.path.exists("site/source/_templates/sitemap.xml.j2")
+    assert os.path.exists("site/build/sitemap.xml")
 
     unlink("test.yml")
     make_empty("site", True)
@@ -271,7 +284,9 @@ def test_ssss_scaffold_no_llm_skips_llms_txt():
     output, returncode = run_ssss("--scaffold", "--no-llm", "-c", "test.yml")
     assert returncode == 0
     assert not os.path.exists("site/source/_templates/llms.txt.j2")
+    assert not os.path.exists("site/build/llms.txt")
     assert os.path.exists("site/source/_templates/sitemap.xml.j2")
+    assert os.path.exists("site/build/sitemap.xml")
 
     unlink("test.yml")
     make_empty("site", True)
