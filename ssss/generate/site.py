@@ -84,11 +84,18 @@ def generate_special_files(config):
             title = title_match.group(1) if title_match else rel_path.stem.replace("-", " ").title()
 
         description = meta.get("description", [site_desc])[0] if "description" in meta else site_desc
+        date = meta.get("date", [None])[0] if "date" in meta else None
+
+        page_url = "/" + str(rel_path.with_suffix(""))
+        if page_url.endswith("/index"):
+            page_url = page_url[:-6] or "/"
 
         pages.append({
             "url": url_path,
+            "page_url": page_url,
             "title": title,
             "description": description,
+            "date": date,
             "changefreq": changefreq,
             "priority": priority,
             "content": content

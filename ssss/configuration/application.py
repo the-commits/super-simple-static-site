@@ -25,6 +25,9 @@ from ssss.common.application.variables import (
     application_default_sitemap_content,
     application_default_rss_content,
     application_default_llms_txt_content,
+    application_default_blog_template_content,
+    application_default_blog_index_content,
+    application_default_blog_first_post_content,
 )
 from ssss.common.fs import find_config
 from ssss.common.fs.directory import (
@@ -123,7 +126,7 @@ class Application(Arguments):
         self.__no_sitemap = args.no_sitemap
 
     def load_config(self):
-        with open(self.__config, "r") as file:
+        with open(self.__config, "r", encoding="utf-8") as file:
             yaml_data = yaml.safe_load(file)
 
         if yaml_data is not None:
@@ -184,7 +187,7 @@ class Application(Arguments):
 
         if have_write_permission(config_path.parent):
             if not config_path.exists() or confirm_overwrite(str(config_path)):
-                with open(config_path, "w") as file:
+                with open(config_path, "w", encoding="utf-8") as file:
                     yaml.dump(application_default_config_data(), file)
         else:
             raise PermissionError
@@ -198,6 +201,10 @@ class Application(Arguments):
 
         create_directory_if_not_exists(
             os.path.join(self.config["searchpath"], application_default_template_path())
+        )
+
+        create_directory_if_not_exists(
+            os.path.join(self.config["searchpath"], "blog")
         )
 
     def create_scaffold(self):
@@ -223,6 +230,21 @@ class Application(Arguments):
             (
                 os.path.join(self.config["searchpath"], "index.md"),
                 application_default_index_md_content(),
+            ),
+            (
+                os.path.join(
+                    self.config["searchpath"],
+                    application_default_template_path() + "blog.j2",
+                ),
+                application_default_blog_template_content(),
+            ),
+            (
+                os.path.join(self.config["searchpath"], "blog", "index.md"),
+                application_default_blog_index_content(),
+            ),
+            (
+                os.path.join(self.config["searchpath"], "blog", "first-post.md"),
+                application_default_blog_first_post_content(),
             ),
         ]
 
@@ -261,5 +283,5 @@ class Application(Arguments):
 
         for path, content in files:
             if not os.path.exists(path) or confirm_overwrite(path):
-                with open(path, "w") as file:
+                with open(path, "w", encoding="utf-8") as file:
                     file.write(content)

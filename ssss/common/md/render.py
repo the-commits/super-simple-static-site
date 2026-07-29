@@ -17,6 +17,10 @@ def run(site, data, **kwargs):
     out = site.outpath / Path(data.name).with_suffix(application_default_output_extension())
     os.makedirs(out.parent, exist_ok=True)
     template = find_template(site, data)
+    page_url = "/" + str(Path(data.name).with_suffix(""))
+    if page_url.endswith("/index"):
+        page_url = page_url[:-6] or "/"
+    kwargs["page_url"] = page_url
     site.get_template(template).stream(**kwargs).dump(str(out), encoding=site.encoding)
 
 

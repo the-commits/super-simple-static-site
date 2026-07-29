@@ -49,5 +49,5 @@ def touch_if_not_exists(path):
 
 def write_if_not_exists(path, content):
     if not os.path.exists(path):
-        with open(path, "w") as file:
+        with open(path, "w", encoding="utf-8") as file:
             file.write(content)

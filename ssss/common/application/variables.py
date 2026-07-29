@@ -127,3 +127,15 @@ def application_default_rss_content() -> str:
 
 def application_default_llms_txt_content() -> str:
     return read_scaffold_file("llms.txt.j2")
+
+
+def application_default_blog_template_content() -> str:
+    return read_scaffold_file("blog.j2")
+
+
+def application_default_blog_index_content() -> str:
+    return read_scaffold_file("blog/index.md")
+
+
+def application_default_blog_first_post_content() -> str:
+    return read_scaffold_file("blog/first-post.md")

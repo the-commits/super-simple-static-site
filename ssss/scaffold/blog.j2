@@ -1,0 +1,22 @@
+{% extends "_templates/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block og_title %}{{ title }}{% endblock %}
+{% block twitter_title %}{{ title }}{% endblock %}
+{% block description %}{{ description | default('') }}{% endblock %}
+{% block og_description %}{{ description | default('') }}{% endblock %}
+{% block twitter_description %}{{ description | default('') }}{% endblock %}
+{% block content %}
+{% if date %}
+  {# Individual blog post #}
+  <article>
+    <header>
+      <p><time datetime="{{ date }}">{{ date }}</time></p>
+    </header>
+    {{ content }}
+  </article>
+  <p><a href="/blog">← Back to blog</a></p>
+{% else %}
+  {# Blog index #}
+  {{ content }}
+{% endif %}
+{% endblock %}
