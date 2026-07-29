@@ -60,11 +60,23 @@ ssss.yml                          # configuration file
 site/
   source/
     index.md                      # starter content
+    blog/
+      index.md                    # blog listing
+      first-post.md               # sample blog post
     _templates/
       base.html                   # HTML base layout (Pico CSS included)
       default.j2                  # default Jinja2 template
+      blog.j2                     # blog template (index + posts)
   build/
-    index.html                    # generated output
+    index.html                    # generated homepage
+    blog/
+      index.html                  # generated blog listing
+      first-post.html             # generated blog post
+    sitemap.xml                   # automatically generated
+    rss.xml                       # automatically generated
+    feed.xml                      # RSS alias
+    llms.txt                      # LLM-friendly summary
+    robots.txt                    # robots directives
 ```
 
 ### Init only
@@ -99,7 +111,23 @@ site:
   description: A site built with ssss.
   author: Your Name
   url: https://example.com
+  email: your@email.com
 ```
+
+### Per-page frontmatter
+
+Markdown files can include metadata via the Python-Markdown `meta` extension:
+
+```markdown
+Title: My Post
+Date: 2025-07-29
+Description: A short summary.
+changefreq: yearly
+priority: 0.7
+```
+
+These variables are available in templates as `{{ title }}`, `{{ date }}`, `{{ description }}`, etc.
+`page_url` (e.g. `/blog/my-post`) is automatically passed for canonical URLs.
 
 ## Templates
 
@@ -108,9 +136,41 @@ Templates live in `site/source/_templates/`. ssss uses [staticjinja](https://sta
 - `base.html` — base HTML layout, extended by Jinja2 templates
 - `default.j2` — default template, applied to all Markdown files without a dedicated template
 - `__<stem>.j2` — template applied only to the content file with the matching stem
+- Subdirectory templates — e.g. `_templates/blog/__index.j2` applies only to `blog/index.md`
 
-The default scaffold includes [Pico CSS](https://github.com/picocss/pico) via CDN — a minimal,
+The default scaffold includes [Pico CSS](https://github.com/picocss/pico) as a local copy — a minimal,
 classless CSS framework for semantic HTML that makes every page look clean with zero extra effort.
+
+### Template variables
+
+Each page receives the following variables during rendering:
+
+| Variable | Source | Description |
+|---|---|---|
+| `content` | Markdown body | Converted HTML content |
+| `title` | Frontmatter `Title` or `<h1>` | Page title |
+| `description` | Frontmatter or `site.description` | Meta description |
+| `date` | Frontmatter `Date` | Publish date (for RSS) |
+| `page_url` | Auto-generated | Canonical path (e.g. `/blog/my-post`) |
+| `site` | `ssss.yml` → `site` block | Site-wide variables |
+
+### Blog template
+
+The scaffold includes `blog.j2` which handles both the blog listing (no `date` — shows post list)
+and individual posts (has `date` — full article view) using `{% if date %}...{% endif %}`.
+
+## Special files
+
+ssss automatically generates the following files during every build:
+
+| File | Purpose |
+|---|---|
+| `sitemap.xml` | XML sitemap with per-page `changefreq` and `priority` |
+| `rss.xml` / `feed.xml` | RSS feed with `<pubDate>` from frontmatter `Date` |
+| `llms.txt` | LLM-friendly site summary (UTF-8 BOM included) |
+| `robots.txt` | Robots directives pointing to the sitemap |
+
+Use `--no-sitemap`, `--no-feed`, or `--no-llm` to omit these.
 
 ## CLI reference
 
@@ -123,10 +183,14 @@ ssss --help
 | `--scaffold` | Create config, directories, and starter files, then build |
 | `--init` | Create config and directories only |
 | `--config`, `-c` | Path to a configuration file |
+| `--no-seo` | Omit SEO meta tags from scaffold |
+| `--no-llm` | Omit `llms.txt` from scaffold and build |
+| `--no-feed` | Omit RSS feed from scaffold and build |
+| `--no-sitemap` | Omit `sitemap.xml` from scaffold and build |
 | `--version`, `-v` | Print the version and exit |
 | `--help`, `-h` | Show help and exit |
 
 ## License
 
-[AGPL-3.0-or-later](LICENSE) © Magnus Åberg (The Commits)
+[AGPL-3.0-or-later](LICENSE) © Magnus "The Commits" Åberg (himself@magnusaberg.me)
 
