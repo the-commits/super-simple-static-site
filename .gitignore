@@ -139,6 +139,10 @@ dmypy.json
 
 # AI tools
 AGENTS.md
+
+# Generated test / lock files
+test_scaffold.yml
+uv.lock
 CLAUDE.md
 .cursor/
 .cursorignore
