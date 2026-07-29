@@ -8,7 +8,7 @@ from jinja2 import Environment
 
 
 def variables(template):
-    raw_content = Path(template.filename).read_text()
+    raw_content = Path(template.filename).read_text(encoding="utf-8")
     meta_md = markdown.Markdown(extensions=["meta"])
     meta_md.convert(raw_content)
 

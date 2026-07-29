@@ -1,0 +1,6 @@
+site:
+  author: developer
+  description: Site Description
+  email: developer@localhost
+  title: Site Name
+  url: http://localhost:8000

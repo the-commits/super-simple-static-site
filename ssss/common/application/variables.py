@@ -10,7 +10,7 @@ def scaffold_directory() -> Path:
 
 
 def read_scaffold_file(filename) -> str:
-    return (scaffold_directory() / filename).read_text()
+    return (scaffold_directory() / filename).read_text(encoding="utf-8")
 
 
 def application_name() -> str:
