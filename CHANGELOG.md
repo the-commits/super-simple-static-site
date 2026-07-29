@@ -5,22 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v1.3.4 (2026-07-29)
-
-### Fix
-
-- **encoding**: add explicit `encoding="utf-8"` to all remaining `read_text()` calls in `info.py` and `variables.py`
-
-## v1.3.5 (2026-07-29)
-
-### Fix
-
-- **encoding**: prepend UTF-8 BOM to `llms.txt` to force browser encoding detection
-
-### Fix
-
-- **encoding**: add explicit `encoding="utf-8"` to all remaining `read_text()` calls in `info.py` and `variables.py`
-
 ## v1.3.3 (2026-07-29)
 
 ### Fix
@@ -28,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **templates**: pass `page_url` to templates for proper per-page canonical URLs and `og:url`
 - **data**: pass `date` from markdown frontmatter to sitemap/RSS/llms data for pubDate support
 - **scaffold**: add blog template and sample blog post to `--scaffold`
-- **encoding**: specify `encoding="utf-8"` explicitly in all file `open()` calls
+- **encoding**: specify `encoding="utf-8"` explicitly in all file operations (read, write, open)
+- **encoding**: prepend UTF-8 BOM to `llms.txt` to force browser encoding detection
 
 ## v1.3.2 (2026-07-19)
 
