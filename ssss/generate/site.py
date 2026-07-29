@@ -139,7 +139,8 @@ def generate_special_files(config):
             author=site_author,
             email=site_email
         )
-        (outpath / "llms.txt").write_text(rendered, encoding="utf-8")
+        # Prepend UTF-8 BOM so browsers always recognise the encoding
+        (outpath / "llms.txt").write_bytes("\ufeff".encode("utf-8") + rendered.encode("utf-8"))
 
     # Render robots.txt
     robots_tmpl = "User-agent: *\nAllow: /\n\nSitemap: {{ url }}/sitemap.xml\n"

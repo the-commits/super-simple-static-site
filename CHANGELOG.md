@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **encoding**: add explicit `encoding="utf-8"` to all remaining `read_text()` calls in `info.py` and `variables.py`
 
+## v1.3.5 (2026-07-29)
+
+### Fix
+
+- **encoding**: prepend UTF-8 BOM to `llms.txt` to force browser encoding detection
+
+### Fix
+
+- **encoding**: add explicit `encoding="utf-8"` to all remaining `read_text()` calls in `info.py` and `variables.py`
+
 ## v1.3.3 (2026-07-29)
 
 ### Fix
