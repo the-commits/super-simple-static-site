@@ -120,7 +120,7 @@ Markdown files can include metadata via the Python-Markdown `meta` extension:
 
 ```markdown
 Title: My Post
-Date: 2025-07-29
+Date: 2026-07-29
 Description: A short summary.
 changefreq: yearly
 priority: 0.7
@@ -153,6 +153,25 @@ Each page receives the following variables during rendering:
 | `date` | Frontmatter `Date` | Publish date (for RSS) |
 | `page_url` | Auto-generated | Canonical path (e.g. `/blog/my-post`) |
 | `site` | `ssss.yml` → `site` block | Site-wide variables |
+
+### Listing pages with `posts()`
+
+Markdown files are rendered through Jinja2 before Markdown conversion, and have access to
+`posts("<directory>")`. It reads the frontmatter of every `.md` file in that directory
+(relative to the source directory) and returns them sorted newest first by `Date`.
+`index.md` and files prefixed with `_` or `.` are skipped, so `_draft.md` stays out of the list.
+
+Each post has its frontmatter keys (lowercased, e.g. `title`, `date`, `description`) plus
+`url` (e.g. `/blog/my-post.html`) and `page_url` (e.g. `/blog/my-post`).
+
+```markdown
+{% for post in posts("blog") -%}
+- [{{ post.title }}]({{ post.url }}){% if post.date %} — {{ post.date }}{% endif %}
+{% endfor %}
+```
+
+The scaffold's `blog/index.md` uses this, so new posts show up in the listing automatically.
+`--scaffold` sets the sample post's `Date` to the day you run it.
 
 ### Blog template
 
