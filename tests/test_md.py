@@ -8,7 +8,9 @@ from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 
-from ssss.common.md.info import markdown_escape, parse_date, posts, variables
+import markdown
+
+from ssss.common.md.info import markdown_escape, parse_date, posts, read_meta, variables
 
 
 class Variables(unittest.TestCase):
@@ -227,6 +229,35 @@ class MarkdownEscape(unittest.TestCase):
             content = variables(template)["content"]
         self.assertIn('<li><a href="/blog/arrays.html">Arrays [part 1]</a></li>', content)
         self.assertIn('<li><a href="/blog/my%20args.html">Using *args &amp; &lt;kwargs&gt;</a></li>', content)
+
+
+class ReadMeta(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.path = Path(self.tmp.name) / "page.md"
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_read_meta_matches_full_document_parse(self):
+        documents = (
+            "Title: Plain\nDate: 2026-11-01\n\n# Body\n\nKey: not meta\n",
+            "---\nTitle: Dashes\n---\n# Body\n",
+            "Title: Multi\nTags: one\n    two\n\n# Body\n",
+            "# No meta\n\nTitle: not meta\n",
+            "\nTitle: after blank line\n",
+        )
+        for document in documents:
+            self.path.write_text(document, encoding="utf-8")
+            full = markdown.Markdown(extensions=["meta"])
+            full.convert(document)
+            expected = {k: v[0] if len(v) == 1 else v for k, v in full.Meta.items()}
+            self.assertEqual(read_meta(self.path), expected)
+
+    def test_read_meta_does_not_read_the_body(self):
+        body = ("x" * 100 + "\n") * 2000
+        self.path.write_bytes("Title: Header only\n\n".encode("utf-8") + body.encode("utf-8") + b"\xff\xfe")
+        self.assertEqual(read_meta(self.path), {"title": "Header only"})
 
 
 if __name__ == "__main__":
