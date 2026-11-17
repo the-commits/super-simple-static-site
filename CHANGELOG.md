@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.4.0 (2026-11-17)
+
+### Feat
+
+- **scaffold**: build blog listing from post frontmatter
+- **md**: add posts() to list frontmatter of markdown pages
+
+### Fix
+
+- **scaffold**: escape post titles and urls in the blog listing
+- **md**: skip posts that don't match the data pattern
+- **md**: reject missing or out-of-tree posts() directories
+- **md**: raise when posts() cannot find the source directory
+- **md**: keep posts() callable when frontmatter has a posts key
+- **md**: order posts with the same date by url
+- **md**: sort posts by parsed date instead of date text
+- **scaffold**: set sample blog post date when scaffolding
+
+### Refactor
+
+- **generate**: read frontmatter with read_meta in generate_special_files
+
+### Perf
+
+- **md**: read only the frontmatter header in read_meta
+
 ## v1.3.4 (2026-07-29)
 
 ### Fix
