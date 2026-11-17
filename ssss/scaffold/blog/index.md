@@ -9,4 +9,4 @@ A collection of writings.
 
 ## Posts
 
-- [Hello, World!](/blog/first-post.html) — 2025-07-29
+- [Hello, World!](/blog/first-post.html) — 2026-07-29

@@ -1,5 +1,5 @@
 Title: Hello, World!
-Date: 2025-07-29
+Date: 2026-07-29
 Description: Your first blog post.
 changefreq: yearly
 priority: 0.7

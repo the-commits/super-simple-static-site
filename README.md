@@ -120,7 +120,7 @@ Markdown files can include metadata via the Python-Markdown `meta` extension:
 
 ```markdown
 Title: My Post
-Date: 2025-07-29
+Date: 2026-07-29
 Description: A short summary.
 changefreq: yearly
 priority: 0.7
