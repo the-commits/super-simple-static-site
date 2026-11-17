@@ -9,4 +9,6 @@ A collection of writings.
 
 ## Posts
 
-- [Hello, World!](/blog/first-post.html) — 2025-07-29
+{% for post in posts("blog") -%}
+- [{{ post.title }}]({{ post.url }}){% if post.date %} — {{ post.date }}{% endif %}
+{% endfor %}
