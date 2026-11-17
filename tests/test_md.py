@@ -141,5 +141,22 @@ class PostsDateSort(unittest.TestCase):
         self.assertEqual(result[2]["date"], "August 15, 2026")
 
 
+class PostsSameDate(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        blog = self.root / "blog"
+        blog.mkdir()
+        for name in ("charlie", "alpha", "delta", "bravo"):
+            (blog / (name + ".md")).write_text("Title: " + name + "\nDate: 2026-11-01\n\n# " + name + "\n")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_posts_with_same_date_are_ordered_by_url(self):
+        result = posts(self.root, "blog")
+        self.assertEqual([p["title"] for p in result], ["alpha", "bravo", "charlie", "delta"])
+
+
 if __name__ == "__main__":
     unittest.main()
