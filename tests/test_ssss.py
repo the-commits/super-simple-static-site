@@ -267,6 +267,24 @@ def test_ssss_scaffold_blog_uses_current_date_and_lists_posts():
     assert listing.index("first-post.html") < listing.index("second.html")
 
 
+def test_ssss_build_reports_missing_posts_directory():
+    run_ssss("--scaffold")
+
+    with open("site/source/blog/index.md", "r", encoding="utf-8") as f:
+        index = f.read()
+    with open("site/source/blog/index.md", "w", encoding="utf-8") as f:
+        f.write(index.replace('posts("blog")', 'posts("blgo")'))
+
+    output, returncode = run_ssss()
+
+    unlink("ssss.yml")
+    make_empty("site", True)
+
+    assert returncode == 1
+    assert "posts() directory not found:" in output
+    assert "Traceback" not in output
+
+
 def test_ssss_scaffold_writes_sitemap_and_rss_and_llms():
     output, returncode = run_ssss("--scaffold", "-c", "test.yml")
     assert returncode == 0
