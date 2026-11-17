@@ -15,15 +15,29 @@ from ssss.common.application.variables import application_default_data, applicat
 
 
 def read_meta(path) -> dict:
-    """Return the frontmatter of a Markdown file, with single values unwrapped."""
+    """Return the frontmatter of a Markdown file, with single values unwrapped.
+
+    Only the header (up to the first blank line, where the ``meta`` extension
+    stops) is read and parsed, not the body.
+    """
     meta_md = markdown.Markdown(extensions=["meta"])
-    meta_md.convert(Path(path).read_text(encoding="utf-8"))
+    meta_md.convert(_read_header(path))
 
     meta = dict(meta_md.Meta)
     for key, value in meta.items():
         if isinstance(value, list) and len(value) == 1:
             meta[key] = value[0]
     return meta
+
+
+def _read_header(path) -> str:
+    lines = []
+    with open(path, "r", encoding="utf-8") as file:
+        for line in file:
+            if not line.strip():
+                break
+            lines.append(line)
+    return "".join(lines)
 
 
 def parse_date(value) -> date | None:
