@@ -243,8 +243,10 @@ def test_ssss_scaffold_with_subdirectory_content():
 
 
 def test_ssss_scaffold_blog_uses_current_date_and_lists_posts():
+    # The scaffold may run across midnight; accept either day.
+    before = date.today().isoformat()
     run_ssss("--scaffold")
-    today = date.today().isoformat()
+    after = date.today().isoformat()
 
     with open("site/source/blog/first-post.md", "r", encoding="utf-8") as f:
         first_post = f.read()
@@ -261,8 +263,9 @@ def test_ssss_scaffold_blog_uses_current_date_and_lists_posts():
     make_empty("site", True)
 
     assert returncode == 0
-    assert "Date: " + today in first_post
-    assert '<a href="/blog/first-post.html">Hello, World!</a> — ' + today in listing
+    scaffold_date = first_post.split("Date: ", 1)[1].split("\n", 1)[0]
+    assert scaffold_date in (before, after)
+    assert '<a href="/blog/first-post.html">Hello, World!</a> — ' + scaffold_date in listing
     assert '<a href="/blog/second.html">Second</a> — 2000-01-01' in listing
     assert listing.index("first-post.html") < listing.index("second.html")
 
