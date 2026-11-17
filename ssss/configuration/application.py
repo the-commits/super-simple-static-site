@@ -38,6 +38,7 @@ from ssss.common.fs.directory import (
 )
 from ssss.common.io import confirm_overwrite
 from ssss.common.md import variables, render
+from ssss.common.md.info import markdown_escape
 from ssss.configuration.arguments import Arguments
 from ssss.configuration.default import config_file_path
 
@@ -167,7 +168,7 @@ class Application(Arguments):
         self.config["followlinks"] = str(
             self.data.get("followlinks", application_default_followlinks())
         )
-        self.config["filters"] = dict(
+        self.config["filters"] = {"markdown_escape": markdown_escape} | dict(
             self.data.get("filters", application_default_filters())
         )
         self.config["env_globals"] = dict(

@@ -307,6 +307,24 @@ def test_ssss_build_reports_missing_posts_directory():
     assert "Traceback" not in output
 
 
+def test_ssss_scaffold_listing_escapes_post_titles():
+    run_ssss("--scaffold")
+
+    with open("site/source/blog/arrays.md", "w", encoding="utf-8") as f:
+        f.write("Title: Arrays [part 1] *draft*\nDate: 2000-01-01\n\n# Arrays\n")
+
+    output, returncode = run_ssss()
+
+    with open("site/build/blog/index.html", "r", encoding="utf-8") as f:
+        listing = f.read()
+
+    unlink("ssss.yml")
+    make_empty("site", True)
+
+    assert returncode == 0
+    assert '<a href="/blog/arrays.html">Arrays [part 1] *draft*</a> — 2000-01-01' in listing
+
+
 def test_ssss_scaffold_writes_sitemap_and_rss_and_llms():
     output, returncode = run_ssss("--scaffold", "-c", "test.yml")
     assert returncode == 0

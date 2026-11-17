@@ -172,9 +172,12 @@ Each post has its frontmatter keys (lowercased, e.g. `title`, `date`, `descripti
 
 ```markdown
 {% for post in posts("blog") -%}
-- [{{ post.title }}]({{ post.url }}){% if post.date %} — {{ post.date }}{% endif %}
+- [{{ post.title | markdown_escape }}]({{ post.url }}){% if post.date %} — {{ post.date }}{% endif %}
 {% endfor %}
 ```
+
+Use the `markdown_escape` filter for text placed inside Markdown syntax, so a title like `Arrays [part 1]`
+or `Using *args` renders literally instead of breaking the link. `url` and `page_url` are URL-encoded.
 
 The scaffold's `blog/index.md` uses this, so new posts show up in the listing automatically.
 `--scaffold` sets the sample post's `Date` to the day you run it.

@@ -8,7 +8,7 @@ from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 
-from ssss.common.md.info import parse_date, posts, variables
+from ssss.common.md.info import markdown_escape, parse_date, posts, variables
 
 
 class Variables(unittest.TestCase):
@@ -202,6 +202,31 @@ class PostsSameDate(unittest.TestCase):
     def test_posts_with_same_date_are_ordered_by_url(self):
         result = posts(self.root, "blog")
         self.assertEqual([p["title"] for p in result], ["alpha", "bravo", "charlie", "delta"])
+
+
+class MarkdownEscape(unittest.TestCase):
+    def test_markdown_escape_escapes_markdown_and_html(self):
+        self.assertEqual(markdown_escape("Arrays [part 1]"), "Arrays \\[part 1\\]")
+        self.assertEqual(markdown_escape("Using *args"), "Using \\*args")
+        self.assertEqual(markdown_escape("a & <b>"), "a &amp; &lt;b&gt;")
+        self.assertEqual(markdown_escape(2026), "2026")
+
+    def test_listing_renders_titles_and_urls_literally(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            blog = root / "blog"
+            blog.mkdir()
+            (blog / "arrays.md").write_text("Title: Arrays [part 1]\nDate: 2026-11-02\n\n# A\n")
+            (blog / "my args.md").write_text("Title: Using *args & <kwargs>\nDate: 2026-11-01\n\n# B\n")
+            (blog / "index.md").write_text(
+                "{% for post in posts('blog') -%}\n"
+                "- [{{ post.title | markdown_escape }}]({{ post.url }})\n"
+                "{% endfor %}\n"
+            )
+            template = SimpleNamespace(filename=str(blog / "index.md"), name="blog/index.md")
+            content = variables(template)["content"]
+        self.assertIn('<li><a href="/blog/arrays.html">Arrays [part 1]</a></li>', content)
+        self.assertIn('<li><a href="/blog/my%20args.html">Using *args &amp; &lt;kwargs&gt;</a></li>', content)
 
 
 if __name__ == "__main__":
