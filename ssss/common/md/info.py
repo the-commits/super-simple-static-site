@@ -84,6 +84,9 @@ def posts(searchpath, directory) -> list[dict]:
         meta["url"] = "/" + rel_path.with_suffix(application_default_output_extension()).as_posix()
         meta["page_url"] = "/" + rel_path.with_suffix("").as_posix()
         result.append(meta)
+    # Sorting is stable, so pre-sorting by url gives posts with the same date
+    # the same order on every filesystem.
+    result.sort(key=lambda p: p["url"])
 
     dated = sorted((p for p in result if parse_date(p.get("date"))), key=lambda p: parse_date(p["date"]), reverse=True)
     undated = sorted((p for p in result if not parse_date(p.get("date"))), key=lambda p: p["url"])
