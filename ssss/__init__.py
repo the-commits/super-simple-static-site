@@ -19,4 +19,8 @@ def main():
         print("No write permission for configuration directory.")
         exit(1)
 
-    site.build(__ssss_config__)
+    try:
+        site.build(__ssss_config__)
+    except (FileNotFoundError, ValueError) as e:
+        print(str(e))
+        exit(1)

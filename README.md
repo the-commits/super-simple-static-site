@@ -162,6 +162,8 @@ Markdown files are rendered through Jinja2 before Markdown conversion, and have 
 Dates are compared as dates, not text: ISO (`2026-07-29`, `2026-7-1`), RFC 2822 and English month names
 (`July 29, 2026`) are understood; posts without a parseable date are listed last.
 `index.md` and files prefixed with `_` or `.` are skipped, so `_draft.md` stays out of the list.
+The directory must exist inside the source directory; a typo like `posts("blgo")` or a path such as
+`posts("..")` stops the build with an error instead of rendering an empty list.
 
 Each post has its frontmatter keys (lowercased, e.g. `title`, `date`, `description`) plus
 `url` (e.g. `/blog/my-post.html`) and `page_url` (e.g. `/blog/my-post`).

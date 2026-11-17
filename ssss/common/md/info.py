@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2023-2026 Magnus Åberg (The Commits) <himself@magnusaberg.me>
 
+import os
 import re
 from datetime import date, datetime
 from email.utils import parsedate_to_datetime
@@ -69,13 +70,19 @@ def posts(searchpath, directory) -> list[dict]:
     """List the Markdown pages in ``directory`` with their frontmatter.
 
     ``index.md`` and files staticjinja skips (prefixed with ``_`` or ``.``)
-    are left out. Pages are sorted newest first by ``date`` (see
-    ``parse_date``); pages without a date, or with one that can't be parsed,
-    come last.
+    are left out. ``directory`` is relative to ``searchpath`` and must exist
+    inside it. Pages are sorted newest first by ``date`` (see ``parse_date``);
+    pages without a date, or with one that can't be parsed, come last.
     """
-    searchpath = Path(searchpath)
+    searchpath = Path(os.path.normpath(searchpath))
+    post_directory = Path(os.path.normpath(searchpath / directory))
+    if post_directory != searchpath and searchpath not in post_directory.parents:
+        raise ValueError("posts() directory is outside the source directory: " + str(directory))
+    if not post_directory.is_dir():
+        raise FileNotFoundError("posts() directory not found: " + str(post_directory))
+
     result = []
-    for md_file in (searchpath / directory).glob("*.md"):
+    for md_file in post_directory.glob("*.md"):
         if md_file.name == "index.md" or md_file.name[0] in "_.":
             continue
         meta = read_meta(md_file)

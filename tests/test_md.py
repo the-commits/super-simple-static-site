@@ -88,6 +88,24 @@ class Posts(unittest.TestCase):
         self.assertEqual(result[0]["description"], "New one")
         self.assertNotIn("date", result[2])
 
+    def test_posts_missing_directory_raises(self):
+        with self.assertRaises(FileNotFoundError):
+            posts(self.root, "blgo")
+
+    def test_posts_directory_outside_source_raises(self):
+        for directory in ("..", "blog/../..", "/etc"):
+            with self.assertRaises(ValueError):
+                posts(self.root / "blog", directory)
+
+    def test_posts_accepts_source_root_and_normalised_paths(self):
+        (self.root / "about.md").write_text("Title: About\n\n# About\n")
+        self.assertEqual([p["url"] for p in posts(self.root, ".")], ["/about.html"])
+        self.assertEqual(len(posts(self.root, "blog/../blog/")), 3)
+
+    def test_posts_empty_directory_returns_empty_list(self):
+        (self.root / "empty").mkdir()
+        self.assertEqual(posts(self.root, "empty"), [])
+
     def test_variables_exposes_posts_function(self):
         template = SimpleNamespace(filename=str(self.root / "blog" / "index.md"), name="blog/index.md")
         content = variables(template)["content"]
