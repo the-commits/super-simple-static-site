@@ -12,6 +12,7 @@ from ssss.common.application.variables import (
     application_default_llms_txt_content,
 )
 from ssss.common.fs.directory import make_empty
+from ssss.common.md.info import read_meta
 
 
 def build(config):
@@ -37,8 +38,6 @@ def bake(config=None, reload_on_change=False):
 
 
 def generate_special_files(config):
-    import markdown
-
     cfg_dict = config.config if hasattr(config, "config") else config
 
     outpath = Path(cfg_dict.get("outpath", "site/build"))
@@ -67,24 +66,21 @@ def generate_special_files(config):
         meta = {}
         if md_path.exists():
             try:
-                raw_md = md_path.read_text(encoding="utf-8")
-                md_meta = markdown.Markdown(extensions=["meta"])
-                md_meta.convert(raw_md)
-                meta = md_meta.Meta
+                meta = read_meta(md_path)
             except Exception:
                 pass
 
-        changefreq = meta.get("changefreq", ["monthly"])[0] if "changefreq" in meta else "monthly"
+        changefreq = _first(meta.get("changefreq", "monthly"))
         default_prio = "1.0" if url_path == "/index.html" else "0.5"
-        priority = meta.get("priority", [default_prio])[0] if "priority" in meta else default_prio
+        priority = _first(meta.get("priority", default_prio))
 
-        title = meta.get("title", [None])[0] if "title" in meta else None
+        title = _first(meta.get("title"))
         if not title:
             title_match = re.search(r"<h1>(.*?)</h1>", content)
             title = title_match.group(1) if title_match else rel_path.stem.replace("-", " ").title()
 
-        description = meta.get("description", [site_desc])[0] if "description" in meta else site_desc
-        date = meta.get("date", [None])[0] if "date" in meta else None
+        description = _first(meta.get("description", site_desc))
+        date = _first(meta.get("date"))
 
         page_url = "/" + str(rel_path.with_suffix(""))
         if page_url.endswith("/index"):
@@ -146,6 +142,11 @@ def generate_special_files(config):
     robots_tmpl = "User-agent: *\nAllow: /\n\nSitemap: {{ url }}/sitemap.xml\n"
     rendered_robots = Template(robots_tmpl).render(site=site_globals, url=site_globals.get("url", ""))
     (outpath / "robots.txt").write_text(rendered_robots, encoding="utf-8")
+
+
+def _first(value) -> str | None:
+    """read_meta keeps multi-line frontmatter values as lists; use the first line."""
+    return value[0] if isinstance(value, list) else value
 
 
 def _get_template_content(searchpath, filename, default_content):
