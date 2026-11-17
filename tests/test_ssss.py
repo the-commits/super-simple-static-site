@@ -267,6 +267,28 @@ def test_ssss_scaffold_blog_uses_current_date_and_lists_posts():
     assert listing.index("first-post.html") < listing.index("second.html")
 
 
+def test_ssss_posts_lists_only_rendered_pages():
+    run_ssss("--scaffold")
+
+    with open("ssss.yml", "a", encoding="utf-8") as f:
+        f.write("data: '(index|blog/index|blog/first-post)\\.md'\n")
+    with open("site/source/blog/not-rendered.md", "w", encoding="utf-8") as f:
+        f.write("Title: Not rendered\nDate: 2000-01-01\n\n# Not rendered\n")
+
+    output, returncode = run_ssss()
+
+    with open("site/build/blog/index.html", "r", encoding="utf-8") as f:
+        listing = f.read()
+    rendered = os.path.exists("site/build/blog/not-rendered.html")
+
+    unlink("ssss.yml")
+    make_empty("site", True)
+
+    assert returncode == 0
+    assert not rendered
+    assert "first-post.html" in listing
+    assert "not-rendered" not in listing
+
 def test_ssss_build_reports_missing_posts_directory():
     run_ssss("--scaffold")
 
