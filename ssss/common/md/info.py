@@ -94,21 +94,20 @@ def posts(searchpath, directory) -> list[dict]:
 
 
 def _searchpath(template) -> Path:
+    """Return the source directory, derived from the template's name relative to it."""
     filename = Path(template.filename)
     name = getattr(template, "name", None)
-    if name:
-        return filename.parents[len(Path(name).parts) - 1]
-    return filename.parent
+    if not name:
+        raise ValueError("Cannot find the source directory of " + str(filename) + ": template has no name")
+    return filename.parents[len(Path(name).parts) - 1]
 
 
 def variables(template):
     raw_content = Path(template.filename).read_text(encoding="utf-8")
     returned_variables = read_meta(template.filename)
 
-    searchpath = _searchpath(template)
-
     env = Environment()
-    env.globals["posts"] = lambda directory: posts(searchpath, directory)
+    env.globals["posts"] = lambda directory: posts(_searchpath(template), directory)
     jinja_template = env.from_string(raw_content)
     # Passed after the frontmatter so a "posts" key can't hide the helper.
     rendered_markdown = jinja_template.render(returned_variables, posts=env.globals["posts"])

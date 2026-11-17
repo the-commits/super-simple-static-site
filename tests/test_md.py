@@ -102,6 +102,16 @@ class Posts(unittest.TestCase):
         self.assertEqual(result["posts"], "10")
         self.assertIn("<li>Newer 2026-11-01</li>", result["content"])
 
+    def test_variables_posts_without_template_name_raises(self):
+        template = SimpleNamespace(filename=str(self.root / "blog" / "index.md"))
+        with self.assertRaises(ValueError):
+            variables(template)
+
+    def test_variables_posts_resolves_source_root_for_top_level_page(self):
+        (self.root / "index.md").write_text("{% for post in posts('blog') -%}\n- {{ post.url }}\n{% endfor %}\n")
+        template = SimpleNamespace(filename=str(self.root / "index.md"), name="index.md")
+        self.assertIn("<li>/blog/newer.html</li>", variables(template)["content"])
+
 
 class ParseDate(unittest.TestCase):
     def test_parse_date_iso_with_and_without_padding(self):
