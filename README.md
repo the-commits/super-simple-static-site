@@ -159,6 +159,8 @@ Each page receives the following variables during rendering:
 Markdown files are rendered through Jinja2 before Markdown conversion, and have access to
 `posts("<directory>")`. It reads the frontmatter of every `.md` file in that directory
 (relative to the source directory) and returns them sorted newest first by `Date`.
+Dates are compared as dates, not text: ISO (`2026-07-29`, `2026-7-1`), RFC 2822 and English month names
+(`July 29, 2026`) are understood; posts without a parseable date are listed last.
 `index.md` and files prefixed with `_` or `.` are skipped, so `_draft.md` stays out of the list.
 
 Each post has its frontmatter keys (lowercased, e.g. `title`, `date`, `description`) plus
