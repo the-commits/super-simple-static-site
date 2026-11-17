@@ -4,10 +4,11 @@
 import os
 import tempfile
 import unittest
+from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 
-from ssss.common.md.info import posts, variables
+from ssss.common.md.info import parse_date, posts, variables
 
 
 class Variables(unittest.TestCase):
@@ -92,6 +93,52 @@ class Posts(unittest.TestCase):
         content = variables(template)["content"]
         self.assertIn("<li>Newer 2026-11-01</li>\n<li>Older 2026-01-01</li>", content)
         self.assertNotIn("Draft", content)
+
+
+class ParseDate(unittest.TestCase):
+    def test_parse_date_iso_with_and_without_padding(self):
+        self.assertEqual(parse_date("2026-07-29"), date(2026, 7, 29))
+        self.assertEqual(parse_date("2026-7-1"), date(2026, 7, 1))
+        self.assertEqual(parse_date("2026-07-29T10:00:00+02:00"), date(2026, 7, 29))
+        self.assertEqual(parse_date("2026-07-29 10:00"), date(2026, 7, 29))
+
+    def test_parse_date_rfc2822_and_month_names(self):
+        self.assertEqual(parse_date("Wed, 29 Jul 2026 10:00:00 +0200"), date(2026, 7, 29))
+        self.assertEqual(parse_date("July 29, 2026"), date(2026, 7, 29))
+        self.assertEqual(parse_date("Jul 29, 2026"), date(2026, 7, 29))
+        self.assertEqual(parse_date("29 July 2026"), date(2026, 7, 29))
+
+    def test_parse_date_uses_first_line_of_multiline_value(self):
+        self.assertEqual(parse_date(["2026-07-29", "ignored"]), date(2026, 7, 29))
+        self.assertIsNone(parse_date([]))
+
+    def test_parse_date_returns_none_for_non_dates(self):
+        self.assertIsNone(parse_date(None))
+        self.assertIsNone(parse_date(""))
+        self.assertIsNone(parse_date("2026-13-01"))
+        self.assertIsNone(parse_date("someday"))
+        self.assertIsNone(parse_date("20260-07-29"))
+
+
+class PostsDateSort(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        blog = self.root / "blog"
+        blog.mkdir()
+        (blog / "july.md").write_text("Title: July\nDate: 2026-7-1\n\n# July\n")
+        (blog / "november.md").write_text("Title: November\nDate: 2026-11-01\n\n# November\n")
+        (blog / "august.md").write_text("Title: August\nDate: August 15, 2026\n\n# August\n")
+        (blog / "multiline.md").write_text("Title: Multi\nDate: 2026-12-01\n    later line\n\n# Multi\n")
+        (blog / "bad-date.md").write_text("Title: Bad\nDate: someday\n\n# Bad\n")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_posts_sorts_by_parsed_date(self):
+        result = posts(self.root, "blog")
+        self.assertEqual([p["title"] for p in result], ["Multi", "November", "August", "July", "Bad"])
+        self.assertEqual(result[2]["date"], "August 15, 2026")
 
 
 if __name__ == "__main__":

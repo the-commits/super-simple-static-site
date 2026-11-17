@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2023-2026 Magnus Åberg (The Commits) <himself@magnusaberg.me>
 
+import re
+from datetime import date, datetime
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import markdown
@@ -21,12 +24,54 @@ def read_meta(path) -> dict:
     return meta
 
 
+def parse_date(value) -> date | None:
+    """Parse a frontmatter date for sorting; return None if it isn't a date.
+
+    Accepts ISO dates with or without zero padding (``2026-7-1``, optionally
+    followed by a time), RFC 2822 dates (``Wed, 29 Jul 2026 10:00:00 +0200``)
+    and English month-name dates (``July 29, 2026``, ``29 Jul 2026``). A
+    multi-line value uses its first line.
+    """
+    if isinstance(value, list):
+        value = value[0] if value else None
+    if not value:
+        return None
+    value = str(value).strip()
+
+    iso = re.match(r"(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)", value)
+    if iso:
+        return _make_date(int(iso.group(1)), int(iso.group(2)), int(iso.group(3)))
+    return _parse_text_date(value)
+
+
+def _make_date(year, month, day) -> date | None:
+    try:
+        return date(year, month, day)
+    except ValueError:
+        return None
+
+
+def _parse_text_date(value) -> date | None:
+    try:
+        return parsedate_to_datetime(value).date()
+    except (TypeError, ValueError):
+        pass
+
+    for date_format in ("%B %d, %Y", "%b %d, %Y", "%d %B %Y", "%d %b %Y"):
+        try:
+            return datetime.strptime(value, date_format).date()
+        except ValueError:
+            pass
+    return None
+
+
 def posts(searchpath, directory) -> list[dict]:
     """List the Markdown pages in ``directory`` with their frontmatter.
 
     ``index.md`` and files staticjinja skips (prefixed with ``_`` or ``.``)
-    are left out. Pages are sorted newest first by ``date``; pages without a
-    date come last.
+    are left out. Pages are sorted newest first by ``date`` (see
+    ``parse_date``); pages without a date, or with one that can't be parsed,
+    come last.
     """
     searchpath = Path(searchpath)
     result = []
@@ -40,8 +85,8 @@ def posts(searchpath, directory) -> list[dict]:
         meta["page_url"] = "/" + rel_path.with_suffix("").as_posix()
         result.append(meta)
 
-    dated = sorted((p for p in result if p.get("date")), key=lambda p: str(p["date"]), reverse=True)
-    undated = sorted((p for p in result if not p.get("date")), key=lambda p: p["url"])
+    dated = sorted((p for p in result if parse_date(p.get("date"))), key=lambda p: parse_date(p["date"]), reverse=True)
+    undated = sorted((p for p in result if not parse_date(p.get("date"))), key=lambda p: p["url"])
     return dated + undated
 
 
