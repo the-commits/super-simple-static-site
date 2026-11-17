@@ -2,6 +2,7 @@
 # Copyright (C) 2023-2026 Magnus Åberg (The Commits) <himself@magnusaberg.me>
 
 import importlib.metadata
+from datetime import date
 from pathlib import Path
 
 
@@ -138,4 +139,6 @@ def application_default_blog_index_content() -> str:
 
 
 def application_default_blog_first_post_content() -> str:
-    return read_scaffold_file("blog/first-post.md")
+    return read_scaffold_file("blog/first-post.md").replace(
+        "__SCAFFOLD_DATE__", date.today().isoformat()
+    )
