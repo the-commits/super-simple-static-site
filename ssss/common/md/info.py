@@ -6,6 +6,7 @@ import re
 from datetime import date, datetime
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from urllib.parse import quote
 
 import markdown
 from jinja2 import Environment
@@ -66,6 +67,12 @@ def _parse_text_date(value) -> date | None:
     return None
 
 
+def markdown_escape(value) -> str:
+    """Escape text so it renders literally inside Markdown, e.g. in link text."""
+    text = str(value).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return re.sub(r"([\\`*_{}\[\]()#+\-.!])", r"\\\1", text)
+
+
 def posts(searchpath, directory, data=application_default_data()) -> list[dict]:
     """List the Markdown pages in ``directory`` with their frontmatter.
 
@@ -89,8 +96,8 @@ def posts(searchpath, directory, data=application_default_data()) -> list[dict]:
             continue
         meta = read_meta(md_file)
         meta.setdefault("title", md_file.stem.replace("-", " ").title())
-        meta["url"] = "/" + rel_path.with_suffix(application_default_output_extension()).as_posix()
-        meta["page_url"] = "/" + rel_path.with_suffix("").as_posix()
+        meta["url"] = "/" + quote(rel_path.with_suffix(application_default_output_extension()).as_posix())
+        meta["page_url"] = "/" + quote(rel_path.with_suffix("").as_posix())
         result.append(meta)
     # Sorting is stable, so pre-sorting by url gives posts with the same date
     # the same order on every filesystem.
@@ -115,6 +122,7 @@ def variables(template, data=application_default_data()):
     returned_variables = read_meta(template.filename)
 
     env = Environment()
+    env.filters["markdown_escape"] = markdown_escape
     env.globals["posts"] = lambda directory: posts(_searchpath(template), directory, data)
     jinja_template = env.from_string(raw_content)
     # Passed after the frontmatter so a "posts" key can't hide the helper.
