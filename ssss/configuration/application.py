@@ -2,6 +2,7 @@
 # Copyright (C) 2023-2026 Magnus Åberg (The Commits) <himself@magnusaberg.me>
 
 import os
+from functools import partial
 from pathlib import Path
 
 import yaml
@@ -153,11 +154,12 @@ class Application(Arguments):
         self.config["outpath"] = get_full_path(
             self.data.get("output", application_default_output())
         )
+        data_pattern = self.data.get("data", application_default_data())
         self.config["contexts"] = [
-            (self.data.get("data", application_default_data()), variables)
+            (data_pattern, partial(variables, data=data_pattern))
         ]
         self.config["rules"] = [
-            (self.data.get("data", application_default_data()), render.run)
+            (data_pattern, render.run)
         ]
         self.config["encoding"] = str(
             self.data.get("encoding", application_default_encoding())

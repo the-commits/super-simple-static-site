@@ -10,7 +10,7 @@ from pathlib import Path
 import markdown
 from jinja2 import Environment
 
-from ssss.common.application.variables import application_default_output_extension
+from ssss.common.application.variables import application_default_data, application_default_output_extension
 
 
 def read_meta(path) -> dict:
@@ -66,11 +66,12 @@ def _parse_text_date(value) -> date | None:
     return None
 
 
-def posts(searchpath, directory) -> list[dict]:
+def posts(searchpath, directory, data=application_default_data()) -> list[dict]:
     """List the Markdown pages in ``directory`` with their frontmatter.
 
-    ``index.md`` and files staticjinja skips (prefixed with ``_`` or ``.``)
-    are left out. ``directory`` is relative to ``searchpath`` and must exist
+    ``index.md``, files staticjinja skips (prefixed with ``_`` or ``.``) and
+    files that don't match the ``data`` pattern (so are never rendered) are
+    left out. ``directory`` is relative to ``searchpath`` and must exist
     inside it. Pages are sorted newest first by ``date`` (see ``parse_date``);
     pages without a date, or with one that can't be parsed, come last.
     """
@@ -83,10 +84,10 @@ def posts(searchpath, directory) -> list[dict]:
 
     result = []
     for md_file in post_directory.glob("*.md"):
-        if md_file.name == "index.md" or md_file.name[0] in "_.":
+        rel_path = md_file.relative_to(searchpath)
+        if md_file.name == "index.md" or md_file.name[0] in "_." or not re.match(data, rel_path.as_posix()):
             continue
         meta = read_meta(md_file)
-        rel_path = md_file.relative_to(searchpath)
         meta.setdefault("title", md_file.stem.replace("-", " ").title())
         meta["url"] = "/" + rel_path.with_suffix(application_default_output_extension()).as_posix()
         meta["page_url"] = "/" + rel_path.with_suffix("").as_posix()
@@ -109,12 +110,12 @@ def _searchpath(template) -> Path:
     return filename.parents[len(Path(name).parts) - 1]
 
 
-def variables(template):
+def variables(template, data=application_default_data()):
     raw_content = Path(template.filename).read_text(encoding="utf-8")
     returned_variables = read_meta(template.filename)
 
     env = Environment()
-    env.globals["posts"] = lambda directory: posts(_searchpath(template), directory)
+    env.globals["posts"] = lambda directory: posts(_searchpath(template), directory, data)
     jinja_template = env.from_string(raw_content)
     # Passed after the frontmatter so a "posts" key can't hide the helper.
     rendered_markdown = jinja_template.render(returned_variables, posts=env.globals["posts"])

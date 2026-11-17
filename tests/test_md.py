@@ -88,6 +88,16 @@ class Posts(unittest.TestCase):
         self.assertEqual(result[0]["description"], "New one")
         self.assertNotIn("date", result[2])
 
+    def test_posts_skips_files_not_matching_data_pattern(self):
+        result = posts(self.root, "blog", r"blog/(?!older).*\.md")
+        self.assertEqual([p["title"] for p in result], ["Newer", "No Date"])
+
+    def test_variables_passes_data_pattern_to_posts(self):
+        template = SimpleNamespace(filename=str(self.root / "blog" / "index.md"), name="blog/index.md")
+        content = variables(template, data=r"blog/(index|older)\.md")["content"]
+        self.assertIn("<li>Older 2026-01-01</li>", content)
+        self.assertNotIn("Newer", content)
+
     def test_posts_missing_directory_raises(self):
         with self.assertRaises(FileNotFoundError):
             posts(self.root, "blgo")
