@@ -110,7 +110,8 @@ def variables(template):
     env = Environment()
     env.globals["posts"] = lambda directory: posts(searchpath, directory)
     jinja_template = env.from_string(raw_content)
-    rendered_markdown = jinja_template.render(**returned_variables)
+    # Passed after the frontmatter so a "posts" key can't hide the helper.
+    rendered_markdown = jinja_template.render(returned_variables, posts=env.globals["posts"])
 
     md = markdown.Markdown(extensions=["meta", "fenced_code", "tables", "sane_lists"])
     returned_variables["content"] = md.convert(rendered_markdown)
