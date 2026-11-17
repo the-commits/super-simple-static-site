@@ -34,6 +34,13 @@ class Variables(unittest.TestCase):
         self.assertEqual(result["title"], "My Page")
         self.assertEqual(result["author"], "Alice")
 
+    def test_variables_keeps_multiline_meta_values_as_lists(self):
+        template = self._make_template("title: My Page\ntags: one\n    two\n\n# {{ tags | join(', ') }}\n")
+        result = variables(template)
+        self.assertEqual(result["title"], "My Page")
+        self.assertEqual(result["tags"], ["one", "two"])
+        self.assertIn("<h1>one, two</h1>", result["content"])
+
     def test_variables_fenced_code_and_lists(self):
         content = (
             "title: Code Test\n\n"
