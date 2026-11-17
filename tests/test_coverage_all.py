@@ -167,6 +167,34 @@ class CoverageTests(unittest.TestCase):
             site.generate_special_files(app)
         self.assertTrue((outpath / "sitemap.xml").exists())
 
+    def test_site_generate_special_files_reads_frontmatter(self):
+        outpath = self.test_dir / "site" / "build"
+        searchpath = self.test_dir / "site" / "source"
+        outpath.mkdir(parents=True, exist_ok=True)
+        searchpath.mkdir(parents=True, exist_ok=True)
+
+        (outpath / "post.html").write_text("<h1>Heading</h1>")
+        (searchpath / "post.md").write_text(
+            "Title: Post\nDate: 2026-11-01\nDescription: First line\n    second line\n"
+            "changefreq: yearly\npriority: 0.7\n\n# Heading\n"
+        )
+        (outpath / "plain.html").write_text("<h1>Plain heading</h1>")
+        (searchpath / "plain.md").write_text("# Plain heading\n")
+
+        app = SimpleNamespace(config={"outpath": str(outpath), "searchpath": str(searchpath), "env_globals": {}})
+        site.generate_special_files(app)
+
+        sitemap = (outpath / "sitemap.xml").read_text(encoding="utf-8")
+        rss = (outpath / "rss.xml").read_text(encoding="utf-8")
+        self.assertIn("<changefreq>yearly</changefreq>", sitemap)
+        self.assertIn("<priority>0.7</priority>", sitemap)
+        self.assertIn("<changefreq>monthly</changefreq>", sitemap)
+        self.assertIn("<title>Post</title>", rss)
+        self.assertIn("<description>First line</description>", rss)
+        self.assertIn("<pubDate>2026-11-01</pubDate>", rss)
+        self.assertIn("<title>Plain heading</title>", rss)
+        self.assertIn("<description>Site Description</description>", rss)
+
     def test_application_data_setter_and_custom_init(self):
         sys_argv_orig = sys.argv
         try:
