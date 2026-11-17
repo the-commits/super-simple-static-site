@@ -94,6 +94,14 @@ class Posts(unittest.TestCase):
         self.assertIn("<li>Newer 2026-11-01</li>\n<li>Older 2026-01-01</li>", content)
         self.assertNotIn("Draft", content)
 
+    def test_posts_frontmatter_key_does_not_hide_posts_function(self):
+        index = self.root / "blog" / "index.md"
+        index.write_text("Posts: 10\n" + index.read_text())
+        template = SimpleNamespace(filename=str(index), name="blog/index.md")
+        result = variables(template)
+        self.assertEqual(result["posts"], "10")
+        self.assertIn("<li>Newer 2026-11-01</li>", result["content"])
+
 
 class ParseDate(unittest.TestCase):
     def test_parse_date_iso_with_and_without_padding(self):
