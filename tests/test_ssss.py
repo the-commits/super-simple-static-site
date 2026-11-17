@@ -241,6 +241,33 @@ def test_ssss_scaffold_with_subdirectory_content():
     make_empty("site", True)
 
 
+def test_ssss_scaffold_blog_uses_current_date_and_lists_posts():
+    from datetime import date
+
+    run_ssss("--scaffold")
+    today = date.today().isoformat()
+
+    with open("site/source/blog/first-post.md", "r", encoding="utf-8") as f:
+        first_post = f.read()
+
+    with open("site/source/blog/second.md", "w", encoding="utf-8") as f:
+        f.write("Title: Second\nDate: 2000-01-01\n\n# Second\n")
+
+    output, returncode = run_ssss()
+
+    with open("site/build/blog/index.html", "r", encoding="utf-8") as f:
+        listing = f.read()
+
+    unlink("ssss.yml")
+    make_empty("site", True)
+
+    assert returncode == 0
+    assert f"Date: {today}" in first_post
+    assert f'<a href="/blog/first-post.html">Hello, World!</a> — {today}' in listing
+    assert '<a href="/blog/second.html">Second</a> — 2000-01-01' in listing
+    assert listing.index("first-post.html") < listing.index("second.html")
+
+
 def test_ssss_scaffold_writes_sitemap_and_rss_and_llms():
     output, returncode = run_ssss("--scaffold", "-c", "test.yml")
     assert returncode == 0
