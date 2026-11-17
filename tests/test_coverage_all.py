@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2023-2026 Magnus Åberg (The Commits) <himself@magnusaberg.me>
 
+import contextlib
+import io
 import os
 import sys
 import unittest
@@ -243,6 +245,24 @@ class CoverageTests(unittest.TestCase):
                 self.assertTrue(mock_build.called)
         finally:
             sys.argv = sys_argv_orig
+
+    def test_main_prints_build_errors(self):
+        sys_argv_orig = sys.argv
+        try:
+            sys.argv = ["ssss", "--scaffold"]
+            ssss.main()
+            index = self.test_dir / "site" / "source" / "blog" / "index.md"
+            index.write_text(index.read_text(encoding="utf-8").replace('posts("blog")', 'posts("..")'), encoding="utf-8")
+
+            sys.argv = ["ssss"]
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output), self.assertRaises(SystemExit) as raised:
+                ssss.main()
+        finally:
+            sys.argv = sys_argv_orig
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("posts() directory is outside the source directory: ..", output.getvalue())
 
     def test_special_files_options(self):
         app = SimpleNamespace(
